@@ -5,9 +5,10 @@ için hazırlanmış, kurulum gerektirmeyen statik kurumsal web sitesi.
 
 - **Teknoloji:** saf HTML + CSS + JavaScript (framework, derleme adımı ve npm bağımlılığı yok)
 - **Dil:** Türkçe
-- **Tema:** koyu endüstriyel — alacakaranlık atmosferi, safety-orange (`#ff7a1a`) ve cyan (`#22d3ee`) vurgular
-- **Kahraman görsel:** yer altı boru hattı, kaynak muayene düğümleri, iş makinesi ve saha ekibini
-  gösteren, tamamı kodla üretilmiş animasyonlu izometrik SVG sahne + canlı telemetri katmanı
+- **Tema:** koyu endüstriyel — alacakaranlık saha atmosferi, topraksı tonlar ve safety-orange (`#e2701d`) vurgu
+- **Açılış:** kaydırmayla ilerleyen sinematik saha sahnesi — kepçe hendeği açar, boru hendeğe iner,
+  kaynakçı birleşimi kaynatır, hat toprakla örtülür. Tamamı elle çizilmiş vektör (SVG); fotoğraf veya
+  video dosyası kullanılmaz
 
 ## Çalıştırma
 
@@ -29,17 +30,19 @@ python3 -m http.server 8000     # http://localhost:8000
 ```
 .
 ├── index.html          Ana sayfa (izometrik sahne, hizmetler, süreç, projeler, CTA)
+├── surec.html          Kazıdan devreye almaya 10 adımlı saha süreci, ekipman parkı, standartlar
 ├── hizmetler.html      Muayene yöntemleri (RT, UT, PAUT/TOFD, MT, PT, VT, PMI, basınç testi) + SSS
 ├── projeler.html       Referans projeler
 ├── kurumsal.html       Hakkımızda, kalite/belgeler, İSG, değerler
 ├── iletisim.html       Teklif formu, iletişim bilgileri, konum görseli
 └── assets/
     ├── css/
-    │   ├── style.css   Tüm tasarım (değişkenler, bileşenler, animasyonlar, duyarlı düzen)
+    │   ├── style.css   Tüm tasarım (değişkenler, bileşenler, sinematik sahne, duyarlı düzen)
     │   └── fonts.css   Yerel @font-face tanımları
     ├── fonts/          Inter, Space Grotesk, JetBrains Mono (woff2, latin + latin-ext)
     ├── img/favicon.svg
-    └── js/main.js      Menü, kaydırma animasyonları, sayaçlar, telemetri, SSS, form doğrulama
+    └── js/main.js      Menü, kaydırma animasyonları, sayaçlar, SSS, form doğrulama ve
+                        sinematik açılışın kaydırma denetimi
 ```
 
 Yazı tipleri siteyle birlikte geldiği için dış bir CDN'e (Google Fonts) istek yapılmaz;
@@ -76,18 +79,36 @@ grep -rl "+90 312 000 00 00" *.html | xargs sed -i 's/+90 312 000 00 00/+90 312 
 Tüm tasarım değişkenleri `assets/css/style.css` dosyasının başındaki `:root` bloğundadır:
 
 ```css
---orange: #ff7a1a;   /* birincil vurgu  */
---cyan:   #22d3ee;   /* dijital/telemetri vurgusu */
---bg:     #070a10;   /* sayfa zemini */
+--orange: #e2701d;   /* birincil vurgu (safety orange) */
+--cyan:   #74a3b8;   /* ikincil çelik mavisi, ölçülü kullanılır */
+--bg:     #0a0908;   /* sayfa zemini (sıcak siyah) */
 ```
 
-### 3. Menü, üstbilgi ve altbilgi
+### 3. Sinematik açılış
+
+Açılış sahnesi `index.html` içine gömülü tek bir SVG'dir (`id="cinemaSvg"`). Kaydırma konumu,
+`assets/js/main.js` sonundaki modül tarafından 0–1 arası bir ilerlemeye çevrilir ve dört perdeye dağıtılır:
+
+```js
+var RANGES = [[0, .30], [.30, .54], [.54, .80], [.80, 1]];
+//             kazı      indirme     kaynak      geri dolgu
+```
+
+- **Perde süresini değiştirmek:** yukarıdaki aralıkları düzenleyin.
+- **Sahnenin ne kadar kaydırma sürdüğü:** `style.css` içindeki `.cinema { height: 470vh }` değeri
+  (mobilde `380vh`). Değer küçüldükçe sahne daha hızlı akar.
+- **Perde metinleri:** `index.html` içindeki `<article class="act">` blokları.
+- **Hareket azaltma:** işletim sisteminde "hareketi azalt" açıksa sahne sabit tek kare olarak gösterilir.
+- **Gerçek fotoğrafla değiştirmek isterseniz:** `.cinema__scene` içindeki SVG'yi bir `<img>` veya
+  `<video>` ile değiştirip aynı kaydırma mantığını (perde metinleri ve şerit) koruyabilirsiniz.
+
+### 4. Menü, üstbilgi ve altbilgi
 
 Üstbilgi ve altbilgi her sayfada aynı şekilde tekrarlanır (derleme adımı olmadığı için).
-Menüye sayfa ekler veya iletişim bilgisini değiştirirseniz **beş HTML dosyasında da**
+Menüye sayfa ekler veya iletişim bilgisini değiştirirseniz **altı HTML dosyasında da**
 güncelleyin. Aktif menü öğesi ilgili sayfada `class="nav__link is-active"` ile işaretlidir.
 
-### 4. Teklif formunu çalışır hâle getirme
+### 5. Teklif formunu çalışır hâle getirme
 
 `iletisim.html` içindeki form şu anda yalnızca tarayıcı tarafında doğrulama yapar ve
 başarı mesajı gösterir — **veri hiçbir yere gönderilmez**. Sunucu tarafı olmadan çalıştırmak
@@ -118,6 +139,8 @@ Yayına almadan önce yapılması önerilenler:
 ## Erişilebilirlik ve performans notları
 
 - Klavye ile tam gezinilebilir; odak halkaları ve "İçeriğe geç" bağlantısı mevcut
-- `prefers-reduced-motion` açıkken tüm animasyonlar devre dışı kalır
+- `prefers-reduced-motion` açıkken tüm animasyonlar ve sinematik sahne devre dışı kalır
+- Sinematik sahne yalnızca gradyan ve vektör kullanır; ağır SVG filtreleri kaldırıldığı için
+  kaydırma akıcı kalır
 - Tüm görseller SVG olduğu için sayfa ağırlığı düşüktür; resim optimizasyonu gerekmez
 - Mobil, tablet ve masaüstü için ayrı kırılım noktaları tanımlıdır (900px ve 620px)
