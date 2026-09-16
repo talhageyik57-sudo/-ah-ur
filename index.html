@@ -318,6 +318,7 @@ a{color:inherit;text-decoration:none}
   <section class="sec"></section>
   <section class="sec"></section>
   <section class="sec"></section>
+  <section class="sec"></section>
 </main>
 
 <div class="loader" id="loader">
@@ -545,6 +546,22 @@ function tagTexture(label){
   g.beginPath();
   g.moveTo(196, 150); g.lineTo(170, 132); g.moveTo(196, 150); g.lineTo(170, 168); g.stroke();
   const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
+/* Kırmızı-beyaz koruma şeridi */
+function tapeTexture(){
+  const w = 256, h = 32, c = makeCanvas(w, h), g = c.getContext('2d');
+  g.fillStyle = '#f2f2ef'; g.fillRect(0, 0, w, h);
+  g.fillStyle = '#d32b1e';
+  for (let x = -h; x < w + h; x += 40){
+    g.beginPath();
+    g.moveTo(x, 0); g.lineTo(x + 20, 0); g.lineTo(x + 20 + h, h); g.lineTo(x + h, h);
+    g.closePath(); g.fill();
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.colorSpace = THREE.SRGBColorSpace;
   return t;
 }
@@ -1102,28 +1119,56 @@ seam.rotation.y = Math.PI / 2;
 sleeve.add(seam);
 sleeveEnds.push(seam);
 
-/* Güzergâh kazıkları ve ikaz ipi */
+/* Kanal emniyeti: dubalar ve koruma şeridi */
 const markers = new THREE.Group();
 scene.add(markers);
-const stakeMat = new THREE.MeshStandardMaterial({ color: 0xe6ebf2, metalness: 0.2, roughness: 0.7, transparent: true, opacity: 1 });
-const capMat   = new THREE.MeshBasicMaterial({ color: 0x00b6e6, transparent: true, opacity: 1 });
-const ropePts = { neg: [], pos: [] };
-for (let x = -28; x <= 44; x += 8){
-  [-1, 1].forEach(s => {
-    const z = s * (CFG.trenchTop + 1.3);
-    const stake = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 1.7, 8), stakeMat);
-    stake.position.set(x, 0.85, z);
-    stake.castShadow = !LOW_POWER;
-    markers.add(stake);
-    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 10), capMat);
-    cap.position.set(x, 1.72, z);
-    markers.add(cap);
-    (s < 0 ? ropePts.neg : ropePts.pos).push(new THREE.Vector3(x, 1.6, z));
-  });
+const markerMats = [];
+function mkMat(m){ m.transparent = true; markerMats.push(m); return m; }
+
+const coneBodyMat  = mkMat(new THREE.MeshStandardMaterial({ color: 0xe2571b, roughness: 0.72, metalness: 0.04 }));
+const coneWhiteMat = mkMat(new THREE.MeshStandardMaterial({ color: 0xf4f2ee, roughness: 0.7, metalness: 0.04 }));
+const coneBaseMat  = mkMat(new THREE.MeshStandardMaterial({ color: 0x23262b, roughness: 0.85, metalness: 0.1 }));
+const postMat      = mkMat(new THREE.MeshStandardMaterial({ color: 0xd8dde4, roughness: 0.6, metalness: 0.3 }));
+const tapeTex = tapeTexture();
+const tapeMat = mkMat(new THREE.MeshStandardMaterial({
+  map: tapeTex, roughness: 0.75, metalness: 0, side: THREE.DoubleSide
+}));
+
+const conePos = [];
+for (let x = CFG.xStart - 1; x <= CFG.xEnd - 4; x += 6){
+  conePos.push([x, 7.0], [x + 3, -7.0]);
 }
-const ropeMat = new THREE.LineBasicMaterial({ color: 0x00b6e6, transparent: true, opacity: 0.5 });
-markers.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(ropePts.neg), ropeMat));
-markers.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(ropePts.pos), ropeMat));
+const coneBody  = new THREE.InstancedMesh(new THREE.ConeGeometry(0.42, 1.2, 14), coneBodyMat, conePos.length);
+const coneRing  = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.28, 0.33, 0.2, 14), coneWhiteMat, conePos.length);
+const coneBase  = new THREE.InstancedMesh(new THREE.BoxGeometry(0.78, 0.08, 0.78), coneBaseMat, conePos.length);
+coneBody.castShadow = !LOW_POWER;
+const _d = new THREE.Object3D();
+conePos.forEach(([cx, cz], i) => {
+  _d.position.set(cx, 0.62, cz); _d.rotation.set(0, 0, 0); _d.updateMatrix();
+  coneBody.setMatrixAt(i, _d.matrix);
+  _d.position.set(cx, 0.72, cz); _d.updateMatrix();
+  coneRing.setMatrixAt(i, _d.matrix);
+  _d.position.set(cx, 0.04, cz); _d.updateMatrix();
+  coneBase.setMatrixAt(i, _d.matrix);
+});
+[coneBody, coneRing, coneBase].forEach(m => { m.instanceMatrix.needsUpdate = true; markers.add(m); });
+
+/* Direkler ve şerit */
+const tapeX0 = CFG.xStart - 2, tapeX1 = CFG.xEnd - 3;
+[-1, 1].forEach(side => {
+  const z = side * 7.9;
+  for (let x = tapeX0; x <= tapeX1; x += 9){
+    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 1.5, 8), postMat);
+    post.position.set(x, 0.75, z);
+    post.castShadow = !LOW_POWER;
+    markers.add(post);
+  }
+  const len = tapeX1 - tapeX0;
+  const ribbon = new THREE.Mesh(new THREE.PlaneGeometry(len, 0.2), tapeMat);
+  ribbon.position.set((tapeX0 + tapeX1) / 2, 1.28, z);
+  markers.add(ribbon);
+});
+tapeTex.repeat.set((tapeX1 - tapeX0) / 1.6, 1);
 
 /* Kapatma sonrası işaretler */
 const closing = new THREE.Group();
@@ -1177,14 +1222,14 @@ scene.add(rocks);
    05 — İş makineleri (paletli ekskavatör + damperli kamyon)
    ============================================================ */
 const texPaint = paintTexture('#e8a71c');
-texPaint.repeat.set(2, 2);
+texPaint.repeat.set(5, 5);
 
 const MAT = {
   paint : new THREE.MeshStandardMaterial({ map: texPaint, color: 0xffffff, roughness: 0.45, metalness: 0.25, envMapIntensity: 1.1 }),
   dark  : new THREE.MeshStandardMaterial({ color: 0x31363f, roughness: 0.55, metalness: 0.6 }),
   darker: new THREE.MeshStandardMaterial({ color: 0x1c2026, roughness: 0.7, metalness: 0.4 }),
   steel : new THREE.MeshStandardMaterial({ color: 0x9aa3ae, roughness: 0.32, metalness: 0.85, envMapIntensity: 1.3 }),
-  glass : new THREE.MeshPhysicalMaterial({ color: 0x18222c, roughness: 0.06, metalness: 0.1, transparent: true, opacity: 0.55, envMapIntensity: 2.0 }),
+  glass : new THREE.MeshPhysicalMaterial({ color: 0x10161d, roughness: 0.12, metalness: 0.2, transparent: true, opacity: 0.8, envMapIntensity: 0.8 }),
   rubber: new THREE.MeshStandardMaterial({ color: 0x191b1f, roughness: 0.92, metalness: 0.05 }),
   tread : new THREE.MeshStandardMaterial({ map: texTread, color: 0xffffff, roughness: 0.75, metalness: 0.45 }),
   body  : new THREE.MeshStandardMaterial({ color: 0xdfe5ec, roughness: 0.38, metalness: 0.35, envMapIntensity: 1.2 }),
@@ -1303,6 +1348,10 @@ function buildExcavator(){
     tooth.castShadow = !LOW_POWER;
     bucket.add(tooth);
   }
+  const tip = new THREE.Object3D();      // kovanın ağız ucu
+  tip.position.set(1.05, -0.55, 0);
+  bucket.add(tip);
+
   const load = new THREE.Mesh(new THREE.SphereGeometry(0.95, 16, 12), MAT.soil);
   load.scale.set(1, 0.6, 0.95);
   load.position.set(-0.1, -0.15, 0);
@@ -1331,7 +1380,7 @@ function buildExcavator(){
 
   root.position.copy(CFG.excavator);
   scene.add(root);
-  return { root, house, boom, arm, bucket, load, rams };
+  return { root, house, boom, arm, bucket, tip, load, rams };
 }
 const EXC_RIG = buildExcavator();
 
@@ -1556,28 +1605,61 @@ const sparks = new Particles({
   }
 });
 
-/* Toprak / toz */
+/* Toprak topakları ve toz */
 const dirtOrigin = new THREE.Vector3();
+const puffOrigin = new THREE.Vector3();
 let dirtSpread = 0.5, dirtDown = -3.0;
+
+/* Kamyon kasasının içi / hendek tabanı / zemin — parçacıklar nereye düşecek */
+function groundAt(x, z){
+  if (x > -43.0 && x < -34.4 && z > -11.9 && z < -9.1) return 2.45 + EXC.bed * 1.65;
+  if (x > CFG.xStart - 2 && Math.abs(z) < 3.4) return CFG.floorY + 0.8;
+  return 0.05;
+}
+
 const dirt = new Particles({
-  count: LOW_POWER ? 360 : 760, rate: LOW_POWER ? 240 : 460,
-  size: 0.42, map: sprSoft, blending: THREE.NormalBlending, opacity: 0.9,
-  gravity: 15, drag: 1.4,
-  floorY: () => 0.05,
+  count: LOW_POWER ? 520 : 1200, rate: LOW_POWER ? 420 : 900,
+  size: 0.5, map: sprSoft, blending: THREE.NormalBlending, opacity: 0.95,
+  gravity: 16, drag: 1.1,
+  floorY: groundAt,
   onSpawn: (i, pos, vel, life, max) => {
     pos[i*3]   = dirtOrigin.x + rnd(-dirtSpread, dirtSpread);
-    pos[i*3+1] = dirtOrigin.y + rnd(-0.3, 0.3);
+    pos[i*3+1] = dirtOrigin.y + rnd(-0.35, 0.25);
     pos[i*3+2] = dirtOrigin.z + rnd(-dirtSpread, dirtSpread);
-    vel[i*3]   = rnd(-1.2, 1.2);
-    vel[i*3+1] = dirtDown + rnd(-1.2, 1.6);
-    vel[i*3+2] = rnd(-1.2, 1.2);
-    max[i] = life[i] = rnd(0.5, 1.5);
+    vel[i*3]   = rnd(-1.6, 1.6);
+    vel[i*3+1] = dirtDown + rnd(-1.4, 1.2);
+    vel[i*3+2] = rnd(-1.6, 1.6);
+    max[i] = life[i] = rnd(0.7, 2.0);
   },
   onColor: (i, k, col) => {
-    const f = Math.min(1, k * 1.6);
-    col[i*3]   = 0.60 * f;
-    col[i*3+1] = 0.51 * f;
-    col[i*3+2] = 0.38 * f;
+    const f = Math.min(1, k * 2.2);
+    const v = 0.85 + 0.3 * ((i % 7) / 7);
+    col[i*3]   = 0.60 * f * v;
+    col[i*3+1] = 0.50 * f * v;
+    col[i*3+2] = 0.36 * f * v;
+  }
+});
+
+/* Düşen topakların kaldırdığı ince toz */
+const puff = new Particles({
+  count: LOW_POWER ? 220 : 480, rate: LOW_POWER ? 90 : 170,
+  size: 1.7, map: sprSoft, blending: THREE.NormalBlending, opacity: 0.4,
+  gravity: 1.1, drag: 1.9,
+  floorY: () => -60,
+  onSpawn: (i, pos, vel, life, max) => {
+    pos[i*3]   = puffOrigin.x + rnd(-1.1, 1.1);
+    pos[i*3+1] = puffOrigin.y + rnd(-0.2, 0.7);
+    pos[i*3+2] = puffOrigin.z + rnd(-1.1, 1.1);
+    vel[i*3]   = rnd(-0.9, 0.9);
+    vel[i*3+1] = rnd(0.5, 1.9);
+    vel[i*3+2] = rnd(-0.9, 0.9);
+    max[i] = life[i] = rnd(1.4, 3.2);
+  },
+  onColor: (i, k, col) => {
+    const f = Math.sin(Math.min(1, k) * Math.PI) * 0.9;
+    col[i*3]   = 0.78 * f;
+    col[i*3+1] = 0.70 * f;
+    col[i*3+2] = 0.56 * f;
   }
 });
 
@@ -1602,13 +1684,16 @@ scene.add(dust);
    07 — Scrollytelling: kamera pozları, durum ve zaman çizgisi
    ============================================================ */
 const POSES = [
-  { p:[-16.0, 12.0, 11.0], t:[-36.5, -1.5, -2.0], fov: 44 }, // 01 kazı — kepçe & kamyon
+  { p:[-10.5, 10.0,  3.6], t:[-32.0,  0.2,  0.4], fov: 46 }, // 01a kazı — kepçeye önden
+  { p:[-23.0, 13.5, 17.0], t:[-34.5,  0.5, -4.0], fov: 42 }, // 01b kepçe takibi (vinç açısı)
   { p:[ 13.0, 24.0, 21.0], t:[  3.0, -3.4,  0.0], fov: 46 }, // 02 hat serimi — tepeden
   { p:[  5.6,  6.2,  7.6], t:[  0.2, -3.7,  0.0], fov: 42 }, // 03 kaynak
   { p:[-10.5,  6.8,  8.2], t:[  0.0, -3.6,  0.1], fov: 44 }, // 04 NDT
   { p:[  8.8,  6.0,  9.8], t:[  0.0, -3.7,  0.0], fov: 42 }, // 05 izolasyon
   { p:[ 28.0, 20.0, 34.0], t:[  0.0, -1.8,  0.0], fov: 54 }  // 06 kapatma
 ];
+/* Hangi poz hangi metin panelini gösterir */
+const PANEL_OF_POSE = [0, 0, 1, 2, 3, 4, 5];
 
 const cam = {
   px: POSES[0].p[0], py: POSES[0].p[1], pz: POSES[0].p[2],
@@ -1617,7 +1702,7 @@ const cam = {
 };
 
 const YAW_DIG = 0.0;      // kazı cephesine (+x) dönük
-const YAW_TRUCK = 1.66;   // kamyon kasasına dönük
+const YAW_TRUCK = 1.734; // kamyon kasasına dönük
 
 /* Ekskavatör eklem açıları */
 const EXC = { yaw: YAW_DIG, boom: 0.30, arm: -0.95, bucket: -0.30, load: 0, bed: 0.04 };
@@ -1627,6 +1712,7 @@ const S = {
   weld: 0, sparks: 0, sleeve: 0,
   fill: -8.4, marker: 1, closed: 0, dig: 0, dump: 0,
   film: 0, welder: 0, wrapper: 0,
+  follow: 0,   // kamera kepçeyi takip ediyor
   rig: 0,      // projektör + hortum sahada
   src: 0,      // kaynak kapsülünün hortumdaki konumu
   expose: 0    // pozlama
@@ -1637,7 +1723,8 @@ const panels      = Array.from(document.querySelectorAll('.panel'));
 const stepEls     = Array.from(document.querySelectorAll('.step'));
 const progressBar = document.getElementById('progressBar');
 const hint        = document.getElementById('hint');
-let activeIdx = 0;
+let activeIdx = -1;
+let tlTime = 0;
 function setActive(i){
   if (i === activeIdx) return;
   activeIdx = i;
@@ -1653,9 +1740,10 @@ const tl = gsap.timeline({
     scrub: 1, invalidateOnRefresh: true,
     onUpdate: self => {
       const t = self.progress * LAST;
+      tlTime = t;
       let i = Math.floor(t);
-      if (t - i > 0.62) i++;
-      setActive(Math.max(0, Math.min(LAST, i)));
+      if (t - i > 0.74) i++;
+      setActive(PANEL_OF_POSE[Math.max(0, Math.min(LAST, i))]);
       progressBar.style.width = (self.progress * 100).toFixed(2) + '%';
       hint.style.opacity = self.progress > 0.02 ? 0 : 1;
     }
@@ -1664,65 +1752,75 @@ const tl = gsap.timeline({
 
 /* Kamera geçişleri — 1. geçiş kazı döngüsü bitince başlar */
 const MOVE = [
-  { at: 0.62, dur: 0.36 },
-  { at: 1.50, dur: 0.40 },
-  { at: 2.50, dur: 0.40 },
-  { at: 3.52, dur: 0.40 },
-  { at: 4.50, dur: 0.42 }
+  { at: 0.74, dur: 0.26, ease: 'power2.inOut' },  // 01a -> 01b
+  { at: 1.68, dur: 0.32, ease: 'power3.inOut' },  // 01b -> hat serimi (geniş yükseliş)
+  { at: 2.52, dur: 0.40, ease: 'power2.inOut' },
+  { at: 3.52, dur: 0.40, ease: 'power2.inOut' },
+  { at: 4.54, dur: 0.40, ease: 'power2.inOut' },
+  { at: 5.50, dur: 0.42, ease: 'power3.inOut' }
 ];
 for (let i = 0; i < LAST; i++){
   const n = POSES[i + 1];
   tl.to(cam, {
     px: n.p[0], py: n.p[1], pz: n.p[2],
     tx: n.t[0], ty: n.t[1], tz: n.t[2],
-    fov: n.fov, duration: MOVE[i].dur
+    fov: n.fov, duration: MOVE[i].dur, ease: MOVE[i].ease
   }, MOVE[i].at);
 }
 
-/* --- Sahne 1: kazı döngüsü (kepçe kazar, kamyona boşaltır) --- */
-tl.to(EXC, { boom: -0.15, arm: -0.75, bucket: -0.80, duration: 0.12, ease: 'power1.inOut' }, 0.02)
-  .to(S,   { dig: 1, duration: 0.04 }, 0.06)
-  .to(EXC, { bucket: 0.85, arm: -0.95, load: 1, duration: 0.10, ease: 'power2.out' }, 0.14)
-  .to(S,   { dig: 0, duration: 0.05 }, 0.20)
-  .to(EXC, { boom: 0.78, arm: -0.78, duration: 0.09, ease: 'power2.inOut' }, 0.24)
-  .to(EXC, { yaw: YAW_TRUCK, duration: 0.13, ease: 'power2.inOut' }, 0.32)
-  .to(EXC, { bucket: -1.55, duration: 0.07, ease: 'power2.in' }, 0.45)
-  .to(EXC, { load: 0, duration: 0.05 }, 0.46)
-  .to(S,   { dump: 1, duration: 0.02 }, 0.45)
-  .to(EXC, { bed: 0.8, duration: 0.09, ease: 'power1.out' }, 0.46)
-  .to(S,   { dump: 0, duration: 0.03 }, 0.53)
-  .to(EXC, { yaw: YAW_DIG, bucket: -0.40, boom: 0.30, arm: -0.95, duration: 0.16, ease: 'power2.inOut' }, 0.56);
+/* --- Sahne 1: iki tam kazı döngüsü (kaza kaza ilerler) --- */
+function digCycle(t0, bedTo){
+  tl.to(EXC, { boom: -0.15, arm: -0.75, bucket: -0.80, duration: 0.16, ease: 'power1.inOut' }, t0)
+    .to(S,   { dig: 1, duration: 0.04 }, t0 + 0.05)
+    .to(EXC, { bucket: 0.85, arm: -0.95, load: 1, duration: 0.12, ease: 'power2.out' }, t0 + 0.16)
+    .to(S,   { dig: 0, duration: 0.06 }, t0 + 0.24)
+    .to(EXC, { boom: 0.95, arm: -1.40, duration: 0.12, ease: 'power2.inOut' }, t0 + 0.28)
+    .to(EXC, { yaw: YAW_TRUCK, duration: 0.16, ease: 'power2.inOut' }, t0 + 0.38)
+    .to(EXC, { bucket: -1.55, duration: 0.08, ease: 'power2.in' }, t0 + 0.54)
+    .to(S,   { dump: 1, duration: 0.02 }, t0 + 0.55)
+    .to(EXC, { load: 0, duration: 0.07 }, t0 + 0.56)
+    .to(EXC, { bed: bedTo, duration: 0.12, ease: 'power1.out' }, t0 + 0.56)
+    .to(S,   { dump: 0, duration: 0.04 }, t0 + 0.64)
+    .to(EXC, { yaw: YAW_DIG, bucket: -0.40, boom: 0.30, arm: -0.95, duration: 0.18, ease: 'power2.inOut' }, t0 + 0.66);
+}
+digCycle(0.04, 0.46);
+digCycle(1.02, 0.86);
 
-/* Kova kalkarken kamera yukarı kayar */
-tl.to(cam, { ty: 1.9, py: 13.2, duration: 0.14, ease: 'power2.inOut' }, 0.27);
+/* İkinci döngüde kamera kepçeyi takip eder */
+tl.to(S, { follow: 0.55, duration: 0.14, ease: 'power2.out' }, 0.96)
+  .to(S, { follow: 0, duration: 0.16, ease: 'power2.in' }, 1.70);
+
+/* Kova kalkarken kamera hafif yükselir */
+tl.to(cam, { ty: 2.4, py: 9.0, duration: 0.16, ease: 'power2.inOut' }, 0.34)
+  .to(cam, { ty: 0.6, py: 7.6, duration: 0.16, ease: 'power2.inOut' }, 0.58);
 
 /* --- Sahne 3: kaynakçı kaynağı yapar --- */
-tl.to(S, { welder: 1, duration: 0.10 }, 1.58)
-  .to(S, { weld: 1, sparks: 1, duration: 0.32, ease: 'power2.in' }, 1.70);
+tl.to(S, { welder: 1, duration: 0.10 }, 2.58)
+  .to(S, { weld: 1, sparks: 1, duration: 0.32, ease: 'power2.in' }, 2.70);
 
 /* --- Sahne 4: film sarılır, düzenek kurulur, pozlama yapılır --- */
-tl.to(S, { welder: 0, duration: 0.10 }, 2.42)
-  .to(S, { weld: 0.05, sparks: 0, duration: 0.42 }, 2.45)
-  .to(S, { marker: 0.3, duration: 0.4 }, 2.55)
-  .to(S, { film: 1, duration: 0.34, ease: 'none' }, 2.60)     // film kaynağa sarılır
-  .to(S, { rig: 1, duration: 0.14, ease: 'power2.out' }, 2.96) // projektör ve hortum bağlanır
-  .to(S, { src: 1, duration: 0.16, ease: 'power1.inOut' }, 3.10) // kaynak hortumdan çıkar
-  .to(S, { expose: 1, duration: 0.05 }, 3.26)                  // pozlama
-  .to(S, { expose: 0, duration: 0.05 }, 3.42)
-  .to(S, { src: 0, duration: 0.14, ease: 'power1.inOut' }, 3.46) // kaynak geri çekilir
-  .to(S, { rig: 0, duration: 0.12 }, 3.64);
+tl.to(S, { welder: 0, duration: 0.10 }, 3.42)
+  .to(S, { weld: 0.05, sparks: 0, duration: 0.42 }, 3.45)
+  .to(S, { marker: 0.35, duration: 0.4 }, 3.55)
+  .to(S, { film: 1, duration: 0.34, ease: 'none' }, 3.60)      // film kaynağa sarılır
+  .to(S, { rig: 1, duration: 0.14, ease: 'power2.out' }, 3.96) // projektör ve hortum bağlanır
+  .to(S, { src: 1, duration: 0.16, ease: 'power1.inOut' }, 4.10) // kaynak hortumdan çıkar
+  .to(S, { expose: 1, duration: 0.05 }, 4.26)                  // pozlama
+  .to(S, { expose: 0, duration: 0.05 }, 4.42)
+  .to(S, { src: 0, duration: 0.14, ease: 'power1.inOut' }, 4.46) // kaynak geri çekilir
+  .to(S, { rig: 0, duration: 0.12 }, 4.64);
 
 /* --- Sahne 5: film sökülür, işçi siyah izolasyon bandını sarar --- */
-tl.to(S, { weld: 0, duration: 0.30 }, 3.55)
-  .to(S, { film: 0, duration: 0.20, ease: 'none' }, 3.66)
-  .to(S, { wrapper: 1, duration: 0.10 }, 3.86)
-  .to(S, { sleeve: 1, duration: 0.62, ease: 'none' }, 3.96)
-  .to(S, { wrapper: 0, duration: 0.10 }, 4.62);
+tl.to(S, { weld: 0, duration: 0.30 }, 4.55)
+  .to(S, { film: 0, duration: 0.20, ease: 'none' }, 4.66)
+  .to(S, { wrapper: 1, duration: 0.10 }, 4.86)
+  .to(S, { sleeve: 1, duration: 0.62, ease: 'none' }, 4.96)
+  .to(S, { wrapper: 0, duration: 0.10 }, 5.62);
 
 /* --- Sahne 6: kapatma --- */
-tl.to(S, { marker: 0, duration: 0.28 }, 4.46)
-  .to(S, { fill: 0.22, duration: 0.42, ease: 'power1.inOut' }, 4.58)
-  .to(S, { closed: 1, duration: 0.18, ease: 'power2.out' }, 4.82);
+tl.to(S, { marker: 0, duration: 0.28 }, 5.46)
+  .to(S, { fill: 0.22, duration: 0.42, ease: 'power1.inOut' }, 5.58)
+  .to(S, { closed: 1, duration: 0.18, ease: 'power2.out' }, 5.82);
 
 /* Header arka planı */
 const header = document.getElementById('header');
@@ -1747,6 +1845,7 @@ const lookNow   = new THREE.Vector3(cam.tx, cam.ty, cam.tz);
 const _bucketWorld = new THREE.Vector3();
 const _srcPos = new THREE.Vector3();
 const _srcTan = new THREE.Vector3();
+const _push   = new THREE.Vector3();
 camera.position.set(cam.px, cam.py, cam.pz);
 camera.lookAt(lookNow);
 
@@ -1769,7 +1868,21 @@ function tick(){
     : 0;
   lookAt.set(cam.tx, cam.ty + portraitShift, cam.tz);
 
+  /* kepçe takibi: hedef kovanın ucuna kayar */
+  if (S.follow > 0.01) lookAt.lerp(_bucketWorld, S.follow);
+
+  /* sinematik yaklaşma: her pozda kamera yavaşça yakınlaşır */
+  const pi = Math.max(0, Math.min(MOVE.length - 1, Math.floor(tlTime)));
+  const fr = tlTime - Math.floor(tlTime);
+  const mv = MOVE[pi];
+  const push = fr <= mv.at
+    ? (fr / mv.at)
+    : Math.max(0, 1 - (fr - mv.at) / mv.dur);
+  _push.set(cam.tx - cam.px, cam.ty - cam.py, cam.tz - cam.pz)
+       .normalize().multiplyScalar(push * push * 1.8);
+
   const a = 1 - Math.exp(-5.2 * dt);
+  camTarget.add(_push);
   camera.position.lerp(camTarget, a);
   lookNow.lerp(lookAt, a);
   camera.lookAt(lookNow);
@@ -1796,19 +1909,23 @@ function tick(){
   updateRams(EXC_RIG);
   TRUCK.bedLoad.scale.y = Math.max(0.04, EXC.bed);
 
-  /* --- toprak parçacıkları: kazıda ve boşaltmada --- */
+  /* --- toprak: kovadan dökülme ve kazı tozu --- */
+  EXC_RIG.tip.getWorldPosition(_bucketWorld);
   if (S.dump > 0.01){
-    EXC_RIG.bucket.getWorldPosition(_bucketWorld);
     dirtOrigin.copy(_bucketWorld);
-    dirtSpread = 0.6; dirtDown = -3.4;
+    dirtSpread = 0.55; dirtDown = -2.2;
     dirt.update(dt, S.dump);
+    puffOrigin.set(_bucketWorld.x, groundAt(_bucketWorld.x, _bucketWorld.z) + 0.3, _bucketWorld.z);
+    puff.update(dt, S.dump * 0.9);
   } else if (S.dig > 0.01){
-    EXC_RIG.bucket.getWorldPosition(_bucketWorld);
     dirtOrigin.copy(_bucketWorld);
-    dirtSpread = 1.0; dirtDown = 0.6;
-    dirt.update(dt, S.dig * 0.7);
+    dirtSpread = 0.9; dirtDown = 0.4;
+    dirt.update(dt, S.dig * 0.6);
+    puffOrigin.copy(_bucketWorld);
+    puff.update(dt, S.dig * 0.7);
   } else {
     dirt.update(dt, 0);
+    puff.update(dt, 0);
   }
 
   /* --- kaynak --- */
@@ -1867,9 +1984,7 @@ function tick(){
   backfill.position.y = S.fill;
   const mk = S.marker;
   markers.visible = mk > 0.02;
-  stakeMat.opacity = mk;
-  capMat.opacity = mk;
-  ropeMat.opacity = 0.5 * mk;
+  if (markers.visible) for (const m of markerMats) m.opacity = mk;
 
   closing.visible = S.closed > 0.02;
   if (closing.visible){
@@ -1906,7 +2021,7 @@ document.addEventListener('visibilitychange', () => {
   else { clock.getDelta(); renderer.setAnimationLoop(tick); }
 });
 
-const preheat = [ndt, sleeve, closing, film, welder, wrapper, sparks.points, dirt.points];
+const preheat = [ndt, sleeve, closing, film, welder, wrapper, sparks.points, dirt.points, puff.points];
 preheat.forEach(o => { o.userData._v = o.visible; o.visible = true; });
 renderer.compile(scene, camera);
 renderer.render(scene, camera);
