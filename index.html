@@ -174,7 +174,7 @@ a{color:inherit;text-decoration:none}
 @keyframes drop{0%{transform:scaleY(.2);transform-origin:top;opacity:0}40%{opacity:1}100%{transform:scaleY(1);transform-origin:top;opacity:0}}
 
 .scroll{position:relative;z-index:2;pointer-events:none}
-.sec{height:100vh;height:100svh;min-height:620px}
+.sec{height:200vh;height:200svh;min-height:1240px}
 
 /* ---------- Yükleme ---------- */
 .loader{
@@ -279,8 +279,8 @@ a{color:inherit;text-decoration:none}
     <article class="panel" data-panel="3">
       <p class="panel__eyebrow">Aşama 04 / 06 <span></span></p>
       <h2><b>NDT</b> &amp; Radyografik Film</h2>
-      <p>Soğuyan birleşim, tahribatsız muayene ekibine devredilir. Çevresel tarayıcı kaynak ağzının 360°'sini radyografik film ile kaydeder; gözenek, cüruf ve nüfuziyet hataları ilgili standart kabul kriterlerine göre değerlendirilip raporlanır.</p>
-      <div class="chips"><i class="neon">360° Radyografi</i><i class="neon">Dijital Film Arşivi</i><i>Standart Uygunluk</i></div>
+      <p>Soğuyan birleşim tahribatsız muayene ekibine devredilir. Kaynak ağzının çevresine sarma film sarılır, gama projektörün kılavuz hortumu kaynağa bağlanır ve saha emniyete alınır. Radyoaktif kaynak uzaktan kumandayla poz süresi boyunca kaynak ağzına sürülür; banyo edilen filmde gözenek, cüruf ve nüfuziyet hataları standart kabul kriterlerine göre değerlendirilir.</p>
+      <div class="chips"><i class="neon">Gama Radyografi</i><i class="neon">Sarma Film</i><i>Standart Uygunluk</i></div>
     </article>
 
     <article class="panel" data-panel="4">
@@ -549,25 +549,23 @@ function tagTexture(label){
   return t;
 }
 
-function gridTexture(){
+/* Radyoaktif madde uyarı etiketi */
+function trefoilTexture(){
   const s = 256, c = makeCanvas(s), g = c.getContext('2d');
-  g.clearRect(0, 0, s, s);
-  g.strokeStyle = 'rgba(0,210,255,.85)'; g.lineWidth = 2;
-  for (let i = 0; i <= 8; i++){
-    const p = (i / 8) * s;
-    g.globalAlpha = i % 2 ? .35 : .9;
-    g.beginPath(); g.moveTo(p, 0); g.lineTo(p, s); g.stroke();
-    g.beginPath(); g.moveTo(0, p); g.lineTo(s, p); g.stroke();
+  g.fillStyle = '#e8c21a'; g.fillRect(0, 0, s, s);
+  g.strokeStyle = '#1a1a1a'; g.lineWidth = 10; g.strokeRect(5, 5, s-10, s-10);
+  g.fillStyle = '#141414';
+  const cx = s/2, cy = s/2 - 8;
+  for (let i = 0; i < 3; i++){
+    const a0 = -Math.PI/2 + i * (Math.PI*2/3) - 0.52;
+    const a1 = a0 + 1.04;
+    g.beginPath();
+    g.arc(cx, cy, 86, a0, a1);
+    g.arc(cx, cy, 30, a1, a0, true);
+    g.closePath(); g.fill();
   }
-  g.globalAlpha = 1;
-  const bg = g.createLinearGradient(0, 0, 0, s);
-  bg.addColorStop(0, 'rgba(0,210,255,0)');
-  bg.addColorStop(.48, 'rgba(140,244,255,.55)');
-  bg.addColorStop(.52, 'rgba(140,244,255,.55)');
-  bg.addColorStop(1, 'rgba(0,210,255,0)');
-  g.fillStyle = bg; g.fillRect(0, 0, s, s);
+  g.beginPath(); g.arc(cx, cy, 20, 0, Math.PI*2); g.fill();
   const t = new THREE.CanvasTexture(c);
-  t.wrapS = t.wrapT = THREE.RepeatWrapping;
   t.colorSpace = THREE.SRGBColorSpace;
   return t;
 }
@@ -696,7 +694,6 @@ const texSoil  = soilTexture();
 const texBump  = soilBump();
 const texSteel = steelTexture();
 const texRough = steelRough();
-const texGrid  = gridTexture();
 const texTread = treadTexture();
 const sprHot   = glowSprite('hot');
 const sprCold  = glowSprite('cold');
@@ -896,67 +893,139 @@ weldGlow.scale.set(7, 7, 1);
 weldGlow.position.set(0, CFG.pipeY + 0.9, 0);
 scene.add(weldGlow);
 
-/* NDT tarayıcı */
+/* ---- Gama radyografi düzeneği (projektör + kılavuz hortum + kumanda kablosu) ---- */
 const ndt = new THREE.Group();
-ndt.position.set(0, CFG.pipeY, 0);
 ndt.visible = false;
 scene.add(ndt);
 
-const ndtBodyMat = new THREE.MeshPhysicalMaterial({
-  color: 0x0c2233, metalness: 0.4, roughness: 0.18,
-  transparent: true, opacity: 0.3, emissive: 0x00d2ff, emissiveIntensity: 0.45,
-  clearcoat: 1, clearcoatRoughness: 0.12, side: THREE.DoubleSide
-});
-const ndtBody = new THREE.Mesh(new THREE.TorusGeometry(2.20, 0.30, 20, 96), ndtBodyMat);
-ndtBody.rotation.y = Math.PI / 2;
-ndt.add(ndtBody);
+const rigMats = [];
+function rigMat(m){ m.transparent = true; m.opacity = 0; rigMats.push(m); return m; }
 
-const ndtWireMat = new THREE.MeshBasicMaterial({
-  color: 0x00d2ff, wireframe: true, transparent: true, opacity: 0.3,
-  blending: THREE.AdditiveBlending, depthWrite: false
-});
-const ndtWire = new THREE.Mesh(new THREE.TorusGeometry(2.62, 0.30, 6, 48), ndtWireMat);
-ndtWire.rotation.y = Math.PI / 2;
-ndt.add(ndtWire);
+const projSteel = rigMat(new THREE.MeshStandardMaterial({ color: 0xc9cdd3, metalness: 0.85, roughness: 0.28, envMapIntensity: 1.2 }));
+const projRed   = rigMat(new THREE.MeshStandardMaterial({ color: 0xa8231d, metalness: 0.35, roughness: 0.45 }));
+const projDark  = rigMat(new THREE.MeshStandardMaterial({ color: 0x23262b, metalness: 0.6, roughness: 0.5 }));
+const tubeMat   = rigMat(new THREE.MeshStandardMaterial({ color: 0xd8d5cc, metalness: 0.15, roughness: 0.62 }));
+const cableMat  = rigMat(new THREE.MeshStandardMaterial({ color: 0xc8a422, metalness: 0.25, roughness: 0.55 }));
+const labelMat  = rigMat(new THREE.MeshStandardMaterial({ map: trefoilTexture(), roughness: 0.6, metalness: 0.05 }));
 
-const gridMat = new THREE.MeshBasicMaterial({
-  map: texGrid, color: 0x00d2ff, transparent: true, opacity: 0,
-  blending: THREE.AdditiveBlending, side: THREE.DoubleSide, depthWrite: false
-});
-texGrid.repeat.set(14, 4);
-const gridCyl = new THREE.Mesh(
-  new THREE.CylinderGeometry(CFG.pipeR + 0.24, CFG.pipeR + 0.24, 7.6, 64, 1, true), gridMat
-);
-gridCyl.rotation.z = Math.PI / 2;
-ndt.add(gridCyl);
+/* Projektör gövdesi — hendek tabanında, kaynaktan güvenli mesafede */
+const PROJ = new THREE.Vector3(6.6, CFG.floorY + 0.95, 2.5);
+const proj = new THREE.Group();
+proj.position.copy(PROJ);
+proj.rotation.y = -0.45;
+proj.scale.setScalar(1.45);
+ndt.add(proj);
 
-const scanMat = new THREE.MeshBasicMaterial({
-  color: 0x9df4ff, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false
+const projBody = new THREE.Mesh(new THREE.CylinderGeometry(0.46, 0.46, 1.9, 28), projSteel);
+projBody.rotation.z = Math.PI / 2;
+projBody.castShadow = !LOW_POWER;
+proj.add(projBody);
+[-1, 1].forEach(sx => {
+  const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.52, 0.52, 0.34, 28), projRed);
+  cap.rotation.z = Math.PI / 2;
+  cap.position.x = sx * 1.05;
+  cap.castShadow = !LOW_POWER;
+  proj.add(cap);
+  const collar = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.12, 28), projSteel);
+  collar.rotation.z = Math.PI / 2;
+  collar.position.x = sx * 0.82;
+  proj.add(collar);
+  const port = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.18, 0.5, 14), projDark);
+  port.rotation.z = Math.PI / 2;
+  port.position.x = sx * 1.4;
+  proj.add(port);
 });
-const scanRing = new THREE.Mesh(new THREE.TorusGeometry(CFG.pipeR + 0.18, 0.06, 10, 90), scanMat);
-scanRing.rotation.y = Math.PI / 2;
-ndt.add(scanRing);
-
-const armMat = new THREE.MeshStandardMaterial({
-  color: 0x121a26, metalness: 0.85, roughness: 0.3, emissive: 0x00d2ff, emissiveIntensity: 0.25
+/* taşıma kolu ve ayaklar */
+const handle = new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.05, 8, 20, Math.PI), projDark);
+handle.rotation.y = Math.PI / 2;
+handle.position.y = 0.46;
+proj.add(handle);
+[-0.6, 0.6].forEach(fx => {
+  const foot = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 1.1), projDark);
+  foot.position.set(fx, -0.52, 0);
+  foot.castShadow = !LOW_POWER;
+  proj.add(foot);
 });
-for (let i = 0; i < 4; i++){
-  const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
-  const arm = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.8, 0.32), armMat);
-  arm.position.set(0, Math.cos(a) * 2.22, Math.sin(a) * 2.22);
-  arm.rotation.x = -a;
-  ndt.add(arm);
-  const emit = new THREE.Mesh(new THREE.SphereGeometry(0.13, 12, 12), new THREE.MeshBasicMaterial({ color: 0x9df4ff }));
-  emit.position.set(0, Math.cos(a) * 1.94, Math.sin(a) * 1.94);
-  ndt.add(emit);
-}
+/* uyarı etiketi */
+const label = new THREE.Mesh(new THREE.PlaneGeometry(0.62, 0.62), labelMat);
+label.position.set(-0.1, 0.465, 0);
+label.rotation.x = -Math.PI / 2;
+proj.add(label);
 
-const ndtGlow = new THREE.Sprite(new THREE.SpriteMaterial({
+/* Kılavuz hortum: projektörden kaynak ağzına */
+const guideCurve = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(5.35, CFG.floorY + 0.95, 2.35),
+  new THREE.Vector3(4.10, CFG.floorY + 0.75, 2.05),
+  new THREE.Vector3(2.60, CFG.floorY + 1.30, 1.70),
+  new THREE.Vector3(1.30, CFG.pipeY - 0.40, 1.15),
+  new THREE.Vector3(0.55, CFG.pipeY + 1.35, 0.45),
+  new THREE.Vector3(0.05, CFG.pipeY + CFG.pipeR + 0.55, 0.0)
+]);
+const guide = new THREE.Mesh(new THREE.TubeGeometry(guideCurve, 90, 0.085, 10, false), tubeMat);
+guide.castShadow = !LOW_POWER;
+ndt.add(guide);
+/* hortumun kaynak ucundaki durağı */
+const srcStop = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.42, 12), projDark);
+srcStop.position.copy(guideCurve.getPointAt(0.985));
+ndt.add(srcStop);
+
+/* Kumanda (krank) kablosu: projektörden hendek dışındaki operatöre */
+const crankCurve = new THREE.CatmullRomCurve3([
+  new THREE.Vector3(7.85, CFG.floorY + 0.95, 2.65),
+  new THREE.Vector3(9.60, CFG.floorY + 0.70, 2.95),
+  new THREE.Vector3(11.4, CFG.floorY + 2.40, 3.90),
+  new THREE.Vector3(13.2, -1.60, 5.10),
+  new THREE.Vector3(14.6,  0.25, 7.20),
+  new THREE.Vector3(15.8,  0.20, 8.40)
+]);
+const crankCable = new THREE.Mesh(new THREE.TubeGeometry(crankCurve, 90, 0.065, 8, false), cableMat);
+ndt.add(crankCable);
+
+/* Krank düzeneği (operatörün çevirdiği çıkrık) */
+const crank = new THREE.Group();
+crank.position.set(16.2, 0, 8.6);
+ndt.add(crank);
+crank.add(new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.18, 0.9), projDark));
+const drum = new THREE.Mesh(new THREE.CylinderGeometry(0.5, 0.5, 0.36, 20), projSteel);
+drum.rotation.x = Math.PI / 2;
+drum.position.y = 0.55;
+crank.add(drum);
+const wheel = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.045, 8, 24), projDark);
+wheel.position.set(0, 0.55, 0.28);
+crank.add(wheel);
+[-0.35, 0.35].forEach(lx => {
+  const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.55, 8), projDark);
+  leg.position.set(lx, 0.28, 0);
+  crank.add(leg);
+});
+
+/* Radyoaktif kaynak (pigtail) — hortum içinde ilerler */
+const srcCapsule = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.3, 10),
+  new THREE.MeshStandardMaterial({ color: 0xdfe4ea, metalness: 0.9, roughness: 0.2, emissive: 0x2a3d45, emissiveIntensity: 0.6 }));
+srcCapsule.visible = false;
+ndt.add(srcCapsule);
+
+const srcGlow = new THREE.Sprite(new THREE.SpriteMaterial({
   map: sprCold, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, opacity: 0
 }));
-ndtGlow.scale.set(8.5, 8.5, 1);
-ndtGlow.position.set(0, CFG.pipeY, 0);
-scene.add(ndtGlow);
+srcGlow.scale.setScalar(2);
+ndt.add(srcGlow);
+
+/* Uyarı konileri (çekim alanı emniyeti) */
+const coneMat = rigMat(new THREE.MeshStandardMaterial({ color: 0xe2571b, roughness: 0.7, metalness: 0.05 }));
+const coneWhite = rigMat(new THREE.MeshStandardMaterial({ color: 0xf2f2f0, roughness: 0.7, metalness: 0.05 }));
+[[9.5, 7.6], [13.5, 7.9], [17.5, 8.3]].forEach(([cx, cz]) => {
+  const cone = new THREE.Mesh(new THREE.ConeGeometry(0.42, 1.25, 14), coneMat);
+  cone.position.set(cx, 0.62, cz);
+  cone.castShadow = !LOW_POWER;
+  ndt.add(cone);
+  const stripe = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.33, 0.22, 14), coneWhite);
+  stripe.position.set(cx, 0.72, cz);
+  ndt.add(stripe);
+  const base = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.09, 0.8), projDark);
+  base.position.set(cx, 0.05, cz);
+  ndt.add(base);
+});
 
 /* Radyografi sarma filmi — kaynak ağzının çevresine sarılır */
 const film = new THREE.Group();
@@ -964,7 +1033,7 @@ film.position.set(0, CFG.pipeY, 0);
 film.visible = false;
 scene.add(film);
 const filmMat = new THREE.MeshStandardMaterial({ color: 0x23302b, roughness: 0.55, metalness: 0.08, side: THREE.DoubleSide });
-const filmEdgeMat = new THREE.MeshStandardMaterial({ color: 0xd9d2c4, roughness: 0.7, metalness: 0 });
+const filmEdgeMat = new THREE.MeshStandardMaterial({ color: 0x9aa0a4, roughness: 0.6, metalness: 0.2 });
 const filmSegs = [];
 const FILM_N = 20;
 for (let i = 0; i < FILM_N; i++){
@@ -1555,9 +1624,12 @@ const EXC = { yaw: YAW_DIG, boom: 0.30, arm: -0.95, bucket: -0.30, load: 0, bed:
 
 /* Sahne durumları */
 const S = {
-  weld: 0, sparks: 0, ndt: 0, laser: 0, sleeve: 0,
+  weld: 0, sparks: 0, sleeve: 0,
   fill: -8.4, marker: 1, closed: 0, dig: 0, dump: 0,
-  film: 0, welder: 0, wrapper: 0
+  film: 0, welder: 0, wrapper: 0,
+  rig: 0,      // projektör + hortum sahada
+  src: 0,      // kaynak kapsülünün hortumdaki konumu
+  expose: 0    // pozlama
 };
 
 /* ---- HUD ---- */
@@ -1592,11 +1664,11 @@ const tl = gsap.timeline({
 
 /* Kamera geçişleri — 1. geçiş kazı döngüsü bitince başlar */
 const MOVE = [
-  { at: 0.52, dur: 0.46 },
-  { at: 1.42, dur: 0.50 },
-  { at: 2.42, dur: 0.50 },
-  { at: 3.42, dur: 0.50 },
-  { at: 4.42, dur: 0.50 }
+  { at: 0.62, dur: 0.36 },
+  { at: 1.50, dur: 0.40 },
+  { at: 2.50, dur: 0.40 },
+  { at: 3.52, dur: 0.40 },
+  { at: 4.50, dur: 0.42 }
 ];
 for (let i = 0; i < LAST; i++){
   const n = POSES[i + 1];
@@ -1625,29 +1697,32 @@ tl.to(EXC, { boom: -0.15, arm: -0.75, bucket: -0.80, duration: 0.12, ease: 'powe
 tl.to(cam, { ty: 1.9, py: 13.2, duration: 0.14, ease: 'power2.inOut' }, 0.27);
 
 /* --- Sahne 3: kaynakçı kaynağı yapar --- */
-tl.to(S, { welder: 1, duration: 0.12 }, 1.42)
-  .to(S, { weld: 1, sparks: 1, duration: 0.45, ease: 'power2.in' }, 1.55);
+tl.to(S, { welder: 1, duration: 0.10 }, 1.58)
+  .to(S, { weld: 1, sparks: 1, duration: 0.32, ease: 'power2.in' }, 1.70);
 
-/* --- Sahne 4: sarma film sarılır, radyografi çekilir --- */
-tl.to(S, { weld: 0.05, sparks: 0, duration: 0.45 }, 2.50)
-  .to(S, { welder: 0, duration: 0.12 }, 2.46)
+/* --- Sahne 4: film sarılır, düzenek kurulur, pozlama yapılır --- */
+tl.to(S, { welder: 0, duration: 0.10 }, 2.42)
+  .to(S, { weld: 0.05, sparks: 0, duration: 0.42 }, 2.45)
   .to(S, { marker: 0.3, duration: 0.4 }, 2.55)
-  .to(S, { film: 1, duration: 0.32, ease: 'none' }, 2.56)
-  .to(S, { ndt: 1, duration: 0.35, ease: 'power3.out' }, 2.80)
-  .to(S, { laser: 1, duration: 0.30 }, 3.00);
+  .to(S, { film: 1, duration: 0.34, ease: 'none' }, 2.60)     // film kaynağa sarılır
+  .to(S, { rig: 1, duration: 0.14, ease: 'power2.out' }, 2.96) // projektör ve hortum bağlanır
+  .to(S, { src: 1, duration: 0.16, ease: 'power1.inOut' }, 3.10) // kaynak hortumdan çıkar
+  .to(S, { expose: 1, duration: 0.05 }, 3.26)                  // pozlama
+  .to(S, { expose: 0, duration: 0.05 }, 3.42)
+  .to(S, { src: 0, duration: 0.14, ease: 'power1.inOut' }, 3.46) // kaynak geri çekilir
+  .to(S, { rig: 0, duration: 0.12 }, 3.64);
 
 /* --- Sahne 5: film sökülür, işçi siyah izolasyon bandını sarar --- */
-tl.to(S, { laser: 0, duration: 0.30 }, 3.48)
-  .to(S, { weld: 0, ndt: 0, duration: 0.33 }, 3.58)
-  .to(S, { film: 0, duration: 0.22, ease: 'none' }, 3.62)
-  .to(S, { wrapper: 1, duration: 0.12 }, 3.70)
-  .to(S, { sleeve: 1, duration: 0.62, ease: 'none' }, 3.82)
-  .to(S, { wrapper: 0, duration: 0.12 }, 4.46);
+tl.to(S, { weld: 0, duration: 0.30 }, 3.55)
+  .to(S, { film: 0, duration: 0.20, ease: 'none' }, 3.66)
+  .to(S, { wrapper: 1, duration: 0.10 }, 3.86)
+  .to(S, { sleeve: 1, duration: 0.62, ease: 'none' }, 3.96)
+  .to(S, { wrapper: 0, duration: 0.10 }, 4.62);
 
 /* --- Sahne 6: kapatma --- */
-tl.to(S, { marker: 0, duration: 0.3 }, 4.30)
-  .to(S, { fill: 0.22, duration: 0.55, ease: 'power1.inOut' }, 4.45)
-  .to(S, { closed: 1, duration: 0.2, ease: 'power2.out' }, 4.80);
+tl.to(S, { marker: 0, duration: 0.28 }, 4.46)
+  .to(S, { fill: 0.22, duration: 0.42, ease: 'power1.inOut' }, 4.58)
+  .to(S, { closed: 1, duration: 0.18, ease: 'power2.out' }, 4.82);
 
 /* Header arka planı */
 const header = document.getElementById('header');
@@ -1670,6 +1745,8 @@ const camTarget = new THREE.Vector3();
 const lookAt    = new THREE.Vector3(cam.tx, cam.ty, cam.tz);
 const lookNow   = new THREE.Vector3(cam.tx, cam.ty, cam.tz);
 const _bucketWorld = new THREE.Vector3();
+const _srcPos = new THREE.Vector3();
+const _srcTan = new THREE.Vector3();
 camera.position.set(cam.px, cam.py, cam.pz);
 camera.lookAt(lookNow);
 
@@ -1743,24 +1820,29 @@ function tick(){
   weldGlow.scale.setScalar(5.5 + S.weld * 3.2);
   sparks.update(dt, S.sparks);
 
-  /* --- NDT --- */
-  ndt.visible = S.ndt > 0.01;
+  /* --- radyografi düzeneği --- */
+  ndt.visible = S.rig > 0.01;
   if (ndt.visible){
-    const spin = 0.6 + S.ndt * 5.4;
-    ndtWire.rotation.x += dt * spin;
-    ndtBody.rotation.x += dt * spin * 0.22;
-    gridCyl.rotation.x += dt * spin * 0.8;
-    texGrid.offset.x   -= dt * 0.55 * S.laser;
-    ndtBodyMat.opacity = 0.32 * S.ndt;
-    ndtBodyMat.emissiveIntensity = 0.35 + S.laser * 1.5;
-    ndtWireMat.opacity = 0.30 * S.ndt;
-    gridMat.opacity    = 1.05 * S.laser;
-    scanRing.position.x = Math.sin(t * 1.35) * 3.1;
-    scanMat.opacity = S.laser * (0.7 + 0.3 * Math.abs(Math.sin(t * 1.35)));
-    ndt.scale.setScalar(0.55 + 0.45 * Math.min(1, S.ndt * 1.2));
+    for (const m of rigMats) m.opacity = S.rig;
+    crank.rotation.y = 0;
+    wheel.rotation.z = (S.src + S.expose * 0.05) * 26;   // çıkrık çevriliyor
+    drum.rotation.z  = (S.src + S.expose * 0.05) * 9;
+
+    const u = Math.min(0.995, Math.max(0.005, S.src));
+    guideCurve.getPointAt(u, _srcPos);
+    srcCapsule.visible = S.src > 0.02 && S.rig > 0.5;
+    srcCapsule.position.copy(_srcPos);
+    guideCurve.getTangentAt(u, _srcTan);
+    srcCapsule.quaternion.setFromUnitVectors(_up, _srcTan);
+
+    const pulse = 0.78 + 0.22 * Math.sin(t * 4.2);
+    srcGlow.position.copy(_srcPos);
+    srcGlow.material.opacity = (0.1 * S.src + 0.55 * S.expose * pulse) * S.rig;
+    srcGlow.scale.setScalar(1.4 + 3.2 * S.expose);
+    ndtLight.position.copy(_srcPos);
   }
-  ndtLight.intensity = S.ndt * (6 + S.laser * 16);
-  ndtGlow.material.opacity = S.ndt * (0.18 + S.laser * 0.42);
+  ndtLight.intensity = S.expose * 9 * (0.82 + 0.18 * Math.sin(t * 4.2));
+  ndtLight.color.setHex(0xbfe6ff);
 
   /* --- sarma film --- */
   film.visible = S.film > 0.01;
