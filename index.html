@@ -319,6 +319,8 @@ a{color:inherit;text-decoration:none}
   <section class="sec"></section>
   <section class="sec"></section>
   <section class="sec"></section>
+  <section class="sec"></section>
+  <section class="sec"></section>
 </main>
 
 <div class="loader" id="loader">
@@ -366,6 +368,8 @@ gsap.registerPlugin(ScrollTrigger);
 
 const LOW_POWER = window.matchMedia('(max-width: 820px)').matches ||
                   (navigator.hardwareConcurrency || 8) <= 4;
+
+const clipOpen = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 60);
 
 const CFG = {
   pipeR     : 1.70,
@@ -550,6 +554,66 @@ function tagTexture(label){
   return t;
 }
 
+/* Asfalt kaplama */
+function asphaltTexture(){
+  const s = 512, c = makeCanvas(s), g = c.getContext('2d');
+  g.fillStyle = '#42464c'; g.fillRect(0, 0, s, s);
+  for (let i = 0; i < 6000; i++){
+    const v = 40 + Math.random() * 90;
+    g.fillStyle = `rgba(${v|0},${v|0},${(v+6)|0},${Math.random()*.5})`;
+    g.fillRect(Math.random()*s, Math.random()*s, rnd(1, 3), rnd(1, 3));
+  }
+  for (let i = 0; i < 26; i++){                      // yamalar
+    const x = Math.random()*s, y = Math.random()*s, r = rnd(20, 80);
+    const rg = g.createRadialGradient(x, y, 0, x, y, r);
+    rg.addColorStop(0, `rgba(${(28+Math.random()*30)|0},${(30+Math.random()*30)|0},${(34+Math.random()*30)|0},.35)`);
+    rg.addColorStop(1, 'rgba(0,0,0,0)');
+    g.fillStyle = rg; g.beginPath(); g.arc(x, y, r, 0, Math.PI*2); g.fill();
+  }
+  g.strokeStyle = 'rgba(20,20,22,.55)';              // çatlaklar
+  for (let i = 0; i < 14; i++){
+    g.lineWidth = rnd(.6, 1.8);
+    let x = Math.random()*s, y = Math.random()*s;
+    g.beginPath(); g.moveTo(x, y);
+    for (let k = 0; k < 6; k++){ x += rnd(-60, 60); y += rnd(-60, 60); g.lineTo(x, y); }
+    g.stroke();
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8;
+  return t;
+}
+
+/* Bina cephesi: pencere ızgarası */
+function facadeTexture(base){
+  const w = 256, h = 256, c = makeCanvas(w, h), g = c.getContext('2d');
+  g.fillStyle = base; g.fillRect(0, 0, w, h);
+  for (let i = 0; i < 900; i++){
+    g.fillStyle = `rgba(255,255,255,${Math.random()*.05})`;
+    g.fillRect(Math.random()*w, Math.random()*h, 2, 2);
+  }
+  const cols = 6, rows = 7;
+  for (let r0 = 0; r0 < rows; r0++){
+    for (let c0 = 0; c0 < cols; c0++){
+      const x = 14 + c0 * 39, y = 16 + r0 * 34;
+      const lit = Math.random();
+      g.fillStyle = lit > 0.86 ? 'rgba(255,238,196,.85)'
+                  : lit > 0.5  ? 'rgba(52,62,76,.92)'
+                               : 'rgba(34,42,54,.95)';
+      g.fillRect(x, y, 26, 22);
+      g.fillStyle = 'rgba(255,255,255,.14)';
+      g.fillRect(x, y, 26, 3);
+      g.fillStyle = 'rgba(0,0,0,.2)';
+      g.fillRect(x - 2, y + 22, 30, 3);
+    }
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.wrapS = t.wrapT = THREE.RepeatWrapping;
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+
 /* Kırmızı-beyaz koruma şeridi */
 function tapeTexture(){
   const w = 256, h = 32, c = makeCanvas(w, h), g = c.getContext('2d');
@@ -656,6 +720,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, LOW_POWER ? 1.5 : 
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.96;
+renderer.localClippingEnabled = true;
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -773,6 +838,93 @@ virgin.receiveShadow = !LOW_POWER;
 virgin.castShadow = !LOW_POWER;
 scene.add(virgin);
 
+/* ---- Şehir: asfalt yol, kaldırımlar, binalar ---- */
+const texAsphalt = asphaltTexture();
+texAsphalt.repeat.set(26, 5);
+const asphaltMat = new THREE.MeshStandardMaterial({ map: texAsphalt, color: 0xffffff, roughness: 0.92, metalness: 0.02 });
+const kerbMat    = new THREE.MeshStandardMaterial({ color: 0xb9b6ae, roughness: 0.85, metalness: 0.02 });
+const walkMat    = new THREE.MeshStandardMaterial({ color: 0xa8a49c, roughness: 0.9, metalness: 0.02 });
+const lineMat    = new THREE.MeshStandardMaterial({ color: 0xe9e6dc, roughness: 0.7, metalness: 0 });
+
+const ROAD_X0 = -80, ROAD_X1 = 60;
+const city = new THREE.Group();
+scene.add(city);
+
+/* yol yüzeyi — hendeğin iki yanı */
+[[6.05, 26], [-26, -6.05]].forEach(([z0, z1]) => {
+  const w = z1 - z0;
+  const road = new THREE.Mesh(new THREE.BoxGeometry(ROAD_X1 - ROAD_X0, 0.12, w), asphaltMat);
+  road.position.set((ROAD_X0 + ROAD_X1) / 2, 0.06, (z0 + z1) / 2);
+  road.receiveShadow = !LOW_POWER;
+  city.add(road);
+});
+/* hendeğin başlamadığı kesimde yol kesintisiz */
+const roadHead = new THREE.Mesh(new THREE.BoxGeometry(CFG.xStart - ROAD_X0, 0.12, 12.1), asphaltMat);
+roadHead.position.set((ROAD_X0 + CFG.xStart) / 2, 0.06, 0);
+roadHead.receiveShadow = !LOW_POWER;
+city.add(roadHead);
+
+/* yol çizgileri */
+[[20.5], [-20.5]].forEach(([z]) => {
+  const line = new THREE.Mesh(new THREE.BoxGeometry(ROAD_X1 - ROAD_X0, 0.02, 0.32), lineMat);
+  line.position.set((ROAD_X0 + ROAD_X1) / 2, 0.13, z);
+  city.add(line);
+});
+
+/* kaldırımlar */
+[1, -1].forEach(sd => {
+  const walk = new THREE.Mesh(new THREE.BoxGeometry(ROAD_X1 - ROAD_X0, 0.42, 6), walkMat);
+  walk.position.set((ROAD_X0 + ROAD_X1) / 2, 0.21, sd * 29);
+  walk.receiveShadow = !LOW_POWER;
+  city.add(walk);
+  const kerb = new THREE.Mesh(new THREE.BoxGeometry(ROAD_X1 - ROAD_X0, 0.46, 0.5), kerbMat);
+  kerb.position.set((ROAD_X0 + ROAD_X1) / 2, 0.23, sd * 26.1);
+  city.add(kerb);
+});
+
+/* binalar */
+const facadeMats = ['#8d8375', '#9aa0a6', '#7d8894', '#a3937f', '#8b93a0', '#96887c']
+  .map(cfx => new THREE.MeshStandardMaterial({ map: facadeTexture(cfx), color: 0xffffff, roughness: 0.82, metalness: 0.04 }));
+const roofMat = new THREE.MeshStandardMaterial({ color: 0x52565c, roughness: 0.9, metalness: 0.1 });
+let bx = ROAD_X0 + 4;
+let bseed = 0;
+while (bx < ROAD_X1){
+  const w = 9 + ((bseed * 37) % 11);
+  const hgt = 9 + ((bseed * 53) % 17);
+  [1, -1].forEach(sd => {
+    const d = 12 + ((bseed * 29) % 9);
+    const m = facadeMats[(bseed + (sd > 0 ? 0 : 3)) % facadeMats.length];
+    const b = new THREE.Mesh(new THREE.BoxGeometry(w, hgt + (sd > 0 ? 0 : 4), d), m);
+    b.position.set(bx + w / 2, (hgt + (sd > 0 ? 0 : 4)) / 2, sd * (33 + d / 2));
+    b.castShadow = b.receiveShadow = !LOW_POWER;
+    city.add(b);
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(w + 0.5, 0.5, d + 0.5), roofMat);
+    roof.position.set(b.position.x, b.position.y * 2 + 0.25, b.position.z);
+    city.add(roof);
+  });
+  bx += w + 2.5;
+  bseed++;
+}
+
+/* sokak aydınlatması */
+const poleMatCity = new THREE.MeshStandardMaterial({ color: 0x6f757d, roughness: 0.5, metalness: 0.6 });
+const lampMat = new THREE.MeshStandardMaterial({ color: 0xdfe4ea, roughness: 0.4, metalness: 0.3, emissive: 0x2a2a20, emissiveIntensity: 0.4 });
+for (let lx = ROAD_X0 + 10; lx < ROAD_X1; lx += 26){
+  [1, -1].forEach(sd => {
+    const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.2, 8.5, 10), poleMatCity);
+    pole.position.set(lx, 4.6, sd * 27.4);
+    pole.castShadow = !LOW_POWER;
+    city.add(pole);
+    const armG = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 2.4, 8), poleMatCity);
+    armG.rotation.x = Math.PI / 2;
+    armG.position.set(lx, 8.7, sd * (27.4 - sd * 1.2));
+    city.add(armG);
+    const lamp = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.22, 1.5), lampMat);
+    lamp.position.set(lx, 8.55, sd * (27.4 - sd * 2.3));
+    city.add(lamp);
+  });
+}
+
 /* Pasa (kazıdan çıkan toprak sırtı) */
 const moundShape = new THREE.Shape();
 moundShape.moveTo(-4.4, 0); moundShape.lineTo(-1.2, 2.5); moundShape.lineTo(1.4, 2.2); moundShape.lineTo(4.4, 0);
@@ -780,18 +932,33 @@ const moundGeo = new THREE.ExtrudeGeometry(moundShape, { depth: trenchLen - 4, b
 moundGeo.rotateY(-Math.PI / 2);
 moundGeo.translate(CFG.xEnd - 2, 0, -10.5);
 moundGeo.computeVertexNormals();
-const mound = new THREE.Mesh(moundGeo, soilPlainMat);
+const moundMat = new THREE.MeshStandardMaterial({
+  map: texSoil, bumpMap: texBump, bumpScale: 0.4, color: 0xffffff, roughness: 0.98, metalness: 0,
+  clippingPlanes: [clipOpen]
+});
+const mound = new THREE.Mesh(moundGeo, moundMat);
 mound.castShadow = mound.receiveShadow = !LOW_POWER;
 scene.add(mound);
 
 /* Boru yatağı */
 const bedding = new THREE.Mesh(
   new THREE.BoxGeometry(trenchLen, 0.7, CFG.trenchBot * 2 - 0.2),
-  new THREE.MeshStandardMaterial({ map: texSoil, color: 0x9a8a6c, roughness: 1, metalness: 0 })
+  new THREE.MeshStandardMaterial({ map: texSoil, color: 0x9a8a6c, roughness: 1, metalness: 0, clippingPlanes: [clipOpen] })
 );
 bedding.position.set((CFG.xStart + CFG.xEnd) / 2, CFG.floorY + 0.35, 0);
 bedding.receiveShadow = !LOW_POWER;
 scene.add(bedding);
+
+/* Hendek kapağı — henüz açılmamış kesimi örter, kazı ilerledikçe çekilir */
+const texAsphalt2 = asphaltTexture();
+texAsphalt2.repeat.set(46, 3);
+const lidTopMat = new THREE.MeshStandardMaterial({ map: texAsphalt2, roughness: 0.92, metalness: 0.02 });
+const lidSideMat = new THREE.MeshStandardMaterial({ map: texSoil, color: 0xffffff, roughness: 0.98, metalness: 0 });
+const lidGeo = new THREE.BoxGeometry(1, 7.4, 12.14);
+lidGeo.translate(0.5, -7.4 / 2 + 0.16, 0);
+const lid = new THREE.Mesh(lidGeo, [lidSideMat, lidSideMat, lidTopMat, lidSideMat, lidSideMat, lidSideMat]);
+lid.receiveShadow = !LOW_POWER;
+scene.add(lid);
 
 /* Geri dolgu kütlesi (Sahne 6) */
 const backfillShape = new THREE.Shape();
@@ -805,12 +972,14 @@ const backfillShape = new THREE.Shape();
 })();
 const backfillGeo = new THREE.ExtrudeGeometry(backfillShape, { depth: trenchLen, bevelEnabled: false, curveSegments: 1 });
 backfillGeo.rotateY(-Math.PI / 2);
-backfillGeo.translate(CFG.xEnd, 0, 0);
+backfillGeo.translate(trenchLen, 0, 0);   // pivot -x uçta: x yönünde büyür
 backfillGeo.computeVertexNormals();
 const backfill = new THREE.Mesh(backfillGeo, new THREE.MeshStandardMaterial({
   map: texSoil, bumpMap: texBump, bumpScale: 0.5, color: 0xb0a184, roughness: 1, metalness: 0
 }));
-backfill.position.y = -8.4;
+backfill.position.set(CFG.xStart, 0.22, 0);
+backfill.scale.x = 0.001;
+backfill.visible = false;
 backfill.receiveShadow = !LOW_POWER;
 scene.add(backfill);
 
@@ -824,16 +993,19 @@ texRough.repeat.set(5, 1);
 
 /* Sarı dış kaplama */
 const coatMat = new THREE.MeshStandardMaterial({
-  map: texCoat, color: 0xffffff, roughness: 0.5, metalness: 0.06, envMapIntensity: 0.75
+  map: texCoat, color: 0xffffff, roughness: 0.5, metalness: 0.06, envMapIntensity: 0.75,
+  clippingPlanes: [clipOpen]
 });
 /* Kaynak ağzında sıyrılmış çıplak çelik */
 const bareMat = new THREE.MeshStandardMaterial({
   map: texSteel, roughnessMap: texRough,
-  color: 0xd4c8b6, metalness: 0.5, roughness: 0.55, envMapIntensity: 0.85
+  color: 0xd4c8b6, metalness: 0.5, roughness: 0.55, envMapIntensity: 0.85,
+  clippingPlanes: [clipOpen]
 });
 /* Kaplama kesim kenarındaki koyu/paslı geçiş */
 const cutbackMat = new THREE.MeshStandardMaterial({
-  map: texSteel, color: 0x7a5a3c, metalness: 0.4, roughness: 0.75
+  map: texSteel, color: 0x7a5a3c, metalness: 0.4, roughness: 0.75,
+  clippingPlanes: [clipOpen]
 });
 
 const BARE = 2.6;   // kaynak başına sıyrılmış bant uzunluğu
@@ -884,7 +1056,7 @@ weldTag('W32',  4.4, false);
 weldTag('W31', -4.4, true);
 
 /* Boru kızakları */
-const skidMat = new THREE.MeshStandardMaterial({ color: 0x7d6b4e, roughness: 0.88, metalness: 0.05 });
+const skidMat = new THREE.MeshStandardMaterial({ color: 0x7d6b4e, roughness: 0.88, metalness: 0.05, clippingPlanes: [clipOpen] });
 for (const sx of [-18, -9.5, 9.5, 19, 30, 42]){
   const skid = new THREE.Mesh(new THREE.BoxGeometry(1.25, 0.72, 2.9), skidMat);
   skid.position.set(sx, CFG.pipeY - CFG.pipeR - 0.34, 0);
@@ -897,11 +1069,21 @@ const weldMat = new THREE.MeshStandardMaterial({
   color: 0x3a3a40, metalness: 0.75, roughness: 0.6,
   emissive: 0xff6612, emissiveIntensity: 0
 });
-const weld = new THREE.Mesh(new THREE.TorusGeometry(CFG.pipeR + 0.035, 0.155, 16, 140), weldMat);
-weld.rotation.y = Math.PI / 2;
+const weld = new THREE.Group();
 weld.position.set(0, CFG.pipeY, 0);
-weld.castShadow = !LOW_POWER;
+weld.rotation.y = Math.PI / 2;
 scene.add(weld);
+const BEAD_N = 26, BEAD_OFF = Math.PI;
+const beadSegs = [];
+for (let i = 0; i < BEAD_N; i++){
+  const g = new THREE.TorusGeometry(CFG.pipeR + 0.035, 0.155, 10, 7, (Math.PI * 2) / BEAD_N * 1.08);
+  g.rotateZ(BEAD_OFF + (i / BEAD_N) * Math.PI * 2);
+  const m = new THREE.Mesh(g, weldMat);
+  m.castShadow = !LOW_POWER;
+  m.visible = false;
+  weld.add(m);
+  beadSegs.push(m);
+}
 
 const weldGlow = new THREE.Sprite(new THREE.SpriteMaterial({
   map: sprHot, blending: THREE.AdditiveBlending, transparent: true, depthWrite: false, opacity: 0
@@ -1254,7 +1436,7 @@ function cyl(rt, rb, h, seg, mat, axis){
 }
 
 /* ---- Paletli ekskavatör ---- */
-function buildExcavator(){
+function buildExcavator(pos, rotY){
   const root = new THREE.Group();
 
   // yürüyüş takımı
@@ -1378,11 +1560,25 @@ function buildExcavator(){
   ram(anchor(boom, 2.1, 0.80, 0),       anchor(arm, 0.85, 0.48, 0),      0.14);
   ram(anchor(arm, 1.1, 0.58, 0),        anchor(bucket, -0.3, 0.68, 0),   0.12);
 
-  root.position.copy(CFG.excavator);
+  root.position.copy(pos || CFG.excavator);
+  if (rotY) root.rotation.y = rotY;
   scene.add(root);
   return { root, house, boom, arm, bucket, tip, load, rams };
 }
 const EXC_RIG = buildExcavator();
+
+/* Kapatmayı yapan ikinci ekskavatör ve malzeme yığını */
+const EXC2_RIG = buildExcavator(new THREE.Vector3(20, 0, 11.5), Math.PI / 2);
+EXC2_RIG.root.visible = false;
+
+const stockGeo = new THREE.SphereGeometry(4.0, 20, 12, 0, Math.PI * 2, 0, Math.PI / 2);
+stockGeo.scale(1, 0.45, 1);
+const stock = new THREE.Mesh(stockGeo, new THREE.MeshStandardMaterial({
+  map: texSoil, bumpMap: texBump, bumpScale: 0.4, color: 0xffffff, roughness: 0.98, metalness: 0
+}));
+stock.position.set(21, 0.05, 16.5);
+stock.castShadow = stock.receiveShadow = !LOW_POWER;
+scene.add(stock);
 
 /* Piston uçlarını dünya uzayında hizala */
 const _pa = new THREE.Vector3(), _pb = new THREE.Vector3(), _pd = new THREE.Vector3();
@@ -1580,14 +1776,15 @@ class Particles {
   }
 }
 
-/* Kaynak kıvılcımları */
+/* Kaynak kıvılcımları — ark noktası bead ilerledikçe döner */
+let arcAngle = Math.PI / 2;
 const sparks = new Particles({
   count: LOW_POWER ? 420 : 900, rate: LOW_POWER ? 320 : 620,
   size: 0.2, map: sprHot, blending: THREE.AdditiveBlending,
   gravity: 12.5, drag: 1.1,
   floorY: () => CFG.floorY + 0.75,
   onSpawn: (i, pos, vel, life, max) => {
-    const a = rnd(-2.35, 2.35), r = CFG.pipeR + rnd(-0.05, 0.1);
+    const a = arcAngle + rnd(-0.32, 0.32), r = CFG.pipeR + rnd(-0.05, 0.1);
     pos[i*3]   = rnd(-0.14, 0.14);
     pos[i*3+1] = CFG.pipeY + Math.cos(a) * r;
     pos[i*3+2] = Math.sin(a) * r;
@@ -1686,14 +1883,16 @@ scene.add(dust);
 const POSES = [
   { p:[-10.5, 10.0,  3.6], t:[-32.0,  0.2,  0.4], fov: 46 }, // 01a kazı — kepçeye önden
   { p:[-23.0, 13.5, 17.0], t:[-34.5,  0.5, -4.0], fov: 42 }, // 01b kepçe takibi (vinç açısı)
+  { p:[-30.0,  9.0,  0.0], t:[ -8.0, -2.0,  0.0], fov: 50 }, // 01c hendek başı — uçuş başlangıcı
   { p:[ 13.0, 24.0, 21.0], t:[  3.0, -3.4,  0.0], fov: 46 }, // 02 hat serimi — tepeden
   { p:[  5.6,  6.2,  7.6], t:[  0.2, -3.7,  0.0], fov: 42 }, // 03 kaynak
   { p:[-10.5,  6.8,  8.2], t:[  0.0, -3.6,  0.1], fov: 44 }, // 04 NDT
   { p:[  8.8,  6.0,  9.8], t:[  0.0, -3.7,  0.0], fov: 42 }, // 05 izolasyon
-  { p:[ 28.0, 20.0, 34.0], t:[  0.0, -1.8,  0.0], fov: 54 }  // 06 kapatma
+  { p:[-14.0, 15.0, 24.0], t:[-24.0, -0.5,  1.0], fov: 44 }, // 06a kapatma — kepçe dolduruyor
+  { p:[ 44.0, 34.0, 16.0], t:[ -8.0, -1.0,  0.0], fov: 52 }  // 06b kapanış uçuşu
 ];
 /* Hangi poz hangi metin panelini gösterir */
-const PANEL_OF_POSE = [0, 0, 1, 2, 3, 4, 5];
+const PANEL_OF_POSE = [0, 0, 0, 1, 2, 3, 4, 5, 5];
 
 const cam = {
   px: POSES[0].p[0], py: POSES[0].p[1], pz: POSES[0].p[2],
@@ -1706,11 +1905,13 @@ const YAW_TRUCK = 1.734; // kamyon kasasına dönük
 
 /* Ekskavatör eklem açıları */
 const EXC = { yaw: YAW_DIG, boom: 0.30, arm: -0.95, bucket: -0.30, load: 0, bed: 0.04 };
+const EXC2 = { yaw: 0.1, boom: 0.25, arm: -0.95, bucket: -0.35, load: 0 };
 
 /* Sahne durumları */
 const S = {
-  weld: 0, sparks: 0, sleeve: 0,
-  fill: -8.4, marker: 1, closed: 0, dig: 0, dump: 0,
+  weld: 0, sparks: 0, sleeve: 0, bead: 0,
+  open: -24, fillK: 0, exc2: 0, dump2: 0,
+  marker: 1, closed: 0, dig: 0, dump: 0,
   film: 0, welder: 0, wrapper: 0,
   follow: 0,   // kamera kepçeyi takip ediyor
   rig: 0,      // projektör + hortum sahada
@@ -1753,11 +1954,13 @@ const tl = gsap.timeline({
 /* Kamera geçişleri — 1. geçiş kazı döngüsü bitince başlar */
 const MOVE = [
   { at: 0.74, dur: 0.26, ease: 'power2.inOut' },  // 01a -> 01b
-  { at: 1.68, dur: 0.32, ease: 'power3.inOut' },  // 01b -> hat serimi (geniş yükseliş)
-  { at: 2.52, dur: 0.40, ease: 'power2.inOut' },
+  { at: 1.84, dur: 0.34, ease: 'power2.inOut' },  // 01b -> hendek başı
+  { at: 2.36, dur: 0.58, ease: 'power1.inOut' },  // kuş uçuşu: hat boyunca ilerler, kazı açılır
   { at: 3.52, dur: 0.40, ease: 'power2.inOut' },
-  { at: 4.54, dur: 0.40, ease: 'power2.inOut' },
-  { at: 5.50, dur: 0.42, ease: 'power3.inOut' }
+  { at: 4.52, dur: 0.40, ease: 'power2.inOut' },
+  { at: 5.54, dur: 0.40, ease: 'power2.inOut' },
+  { at: 6.50, dur: 0.42, ease: 'power2.inOut' },
+  { at: 7.46, dur: 0.50, ease: 'power1.inOut' }   // kapanış uçuşu
 ];
 for (let i = 0; i < LAST; i++){
   const n = POSES[i + 1];
@@ -1788,39 +1991,59 @@ digCycle(1.02, 0.86);
 
 /* İkinci döngüde kamera kepçeyi takip eder */
 tl.to(S, { follow: 0.55, duration: 0.14, ease: 'power2.out' }, 0.96)
-  .to(S, { follow: 0, duration: 0.16, ease: 'power2.in' }, 1.70);
+  .to(S, { follow: 0, duration: 0.16, ease: 'power2.in' }, 1.86);
+
+/* Hendek kazı ilerledikçe açılır; uçuş sırasında hat boyunca sürüp gider */
+tl.to(S, { open: -19, duration: 1.7, ease: 'none' }, 0.12)
+  .to(S, { open: CFG.xEnd + 4, duration: 0.60, ease: 'none' }, 2.36);
 
 /* Kova kalkarken kamera hafif yükselir */
-tl.to(cam, { ty: 2.4, py: 9.0, duration: 0.16, ease: 'power2.inOut' }, 0.34)
-  .to(cam, { ty: 0.6, py: 7.6, duration: 0.16, ease: 'power2.inOut' }, 0.58);
+tl.to(cam, { ty: 2.4, py: 11.2, duration: 0.16, ease: 'power2.inOut' }, 0.34)
+  .to(cam, { ty: 0.2, py: 10.0, duration: 0.16, ease: 'power2.inOut' }, 0.58);
 
 /* --- Sahne 3: kaynakçı kaynağı yapar --- */
-tl.to(S, { welder: 1, duration: 0.10 }, 2.58)
-  .to(S, { weld: 1, sparks: 1, duration: 0.32, ease: 'power2.in' }, 2.70);
+tl.to(S, { welder: 1, duration: 0.10 }, 3.58)
+  .to(S, { weld: 1, sparks: 1, duration: 0.26, ease: 'power2.in' }, 3.70)
+  .to(S, { bead: 1, duration: 0.72, ease: 'none' }, 3.72);   // paso çevre boyunca ilerler
 
 /* --- Sahne 4: film sarılır, düzenek kurulur, pozlama yapılır --- */
-tl.to(S, { welder: 0, duration: 0.10 }, 3.42)
-  .to(S, { weld: 0.05, sparks: 0, duration: 0.42 }, 3.45)
-  .to(S, { marker: 0.35, duration: 0.4 }, 3.55)
-  .to(S, { film: 1, duration: 0.34, ease: 'none' }, 3.60)      // film kaynağa sarılır
-  .to(S, { rig: 1, duration: 0.14, ease: 'power2.out' }, 3.96) // projektör ve hortum bağlanır
-  .to(S, { src: 1, duration: 0.16, ease: 'power1.inOut' }, 4.10) // kaynak hortumdan çıkar
-  .to(S, { expose: 1, duration: 0.05 }, 4.26)                  // pozlama
-  .to(S, { expose: 0, duration: 0.05 }, 4.42)
-  .to(S, { src: 0, duration: 0.14, ease: 'power1.inOut' }, 4.46) // kaynak geri çekilir
-  .to(S, { rig: 0, duration: 0.12 }, 4.64);
+tl.to(S, { welder: 0, duration: 0.10 }, 4.44)
+  .to(S, { weld: 0.05, sparks: 0, duration: 0.42 }, 4.46)
+  .to(S, { marker: 0.35, duration: 0.4 }, 4.55)
+  .to(S, { film: 1, duration: 0.34, ease: 'none' }, 4.60)
+  .to(S, { rig: 1, duration: 0.14, ease: 'power2.out' }, 4.96)
+  .to(S, { src: 1, duration: 0.16, ease: 'power1.inOut' }, 5.10)
+  .to(S, { expose: 1, duration: 0.05 }, 5.26)
+  .to(S, { expose: 0, duration: 0.05 }, 5.42)
+  .to(S, { src: 0, duration: 0.14, ease: 'power1.inOut' }, 5.46)
+  .to(S, { rig: 0, duration: 0.12 }, 5.64);
 
 /* --- Sahne 5: film sökülür, işçi siyah izolasyon bandını sarar --- */
-tl.to(S, { weld: 0, duration: 0.30 }, 4.55)
-  .to(S, { film: 0, duration: 0.20, ease: 'none' }, 4.66)
-  .to(S, { wrapper: 1, duration: 0.10 }, 4.86)
-  .to(S, { sleeve: 1, duration: 0.62, ease: 'none' }, 4.96)
-  .to(S, { wrapper: 0, duration: 0.10 }, 5.62);
+tl.to(S, { weld: 0, duration: 0.30 }, 5.55)
+  .to(S, { film: 0, duration: 0.20, ease: 'none' }, 5.66)
+  .to(S, { wrapper: 1, duration: 0.10 }, 5.86)
+  .to(S, { sleeve: 1, duration: 0.62, ease: 'none' }, 5.96)
+  .to(S, { wrapper: 0, duration: 0.10 }, 6.62);
 
 /* --- Sahne 6: kapatma --- */
-tl.to(S, { marker: 0, duration: 0.28 }, 5.46)
-  .to(S, { fill: 0.22, duration: 0.42, ease: 'power1.inOut' }, 5.58)
-  .to(S, { closed: 1, duration: 0.18, ease: 'power2.out' }, 5.82);
+function fillCycle(t0, fillTo){
+  tl.to(EXC2, { yaw: Math.PI, boom: -0.05, arm: -0.70, bucket: -0.80, duration: 0.10, ease: 'power1.inOut' }, t0)
+    .to(EXC2, { bucket: 0.85, arm: -0.95, load: 1, duration: 0.07, ease: 'power2.out' }, t0 + 0.10)
+    .to(EXC2, { boom: 0.55, arm: -1.05, duration: 0.07 }, t0 + 0.17)
+    .to(EXC2, { yaw: 0.08, duration: 0.11, ease: 'power2.inOut' }, t0 + 0.22)
+    .to(EXC2, { bucket: -1.50, duration: 0.05, ease: 'power2.in' }, t0 + 0.32)
+    .to(S,    { dump2: 1, duration: 0.02 }, t0 + 0.32)
+    .to(EXC2, { load: 0, duration: 0.05 }, t0 + 0.33)
+    .to(S,    { fillK: fillTo, duration: 0.10, ease: 'power1.out' }, t0 + 0.33)
+    .to(S,    { dump2: 0, duration: 0.03 }, t0 + 0.41)
+    .to(EXC2, { bucket: -0.35, boom: 0.25, arm: -0.95, duration: 0.11 }, t0 + 0.41);
+}
+tl.to(S, { marker: 0, duration: 0.30 }, 6.52)
+  .to(S, { exc2: 1, duration: 0.02 }, 6.74);
+fillCycle(6.82, 0.10);
+fillCycle(7.26, 0.26);
+tl.to(S, { fillK: 1, duration: 0.32, ease: 'none' }, 7.68)
+  .to(S, { closed: 1, duration: 0.20, ease: 'power2.out' }, 7.80);
 
 /* Header arka planı */
 const header = document.getElementById('header');
@@ -1911,7 +2134,14 @@ function tick(){
 
   /* --- toprak: kovadan dökülme ve kazı tozu --- */
   EXC_RIG.tip.getWorldPosition(_bucketWorld);
-  if (S.dump > 0.01){
+  if (S.dump2 > 0.01){
+    EXC2_RIG.tip.getWorldPosition(_srcPos);
+    dirtOrigin.copy(_srcPos);
+    dirtSpread = 0.6; dirtDown = -2.4;
+    dirt.update(dt, S.dump2);
+    puffOrigin.set(_srcPos.x, 0.6, _srcPos.z);
+    puff.update(dt, S.dump2 * 0.8);
+  } else if (S.dump > 0.01){
     dirtOrigin.copy(_bucketWorld);
     dirtSpread = 0.55; dirtDown = -2.2;
     dirt.update(dt, S.dump);
@@ -1930,11 +2160,16 @@ function tick(){
 
   /* --- kaynak --- */
   const flick = 0.72 + 0.28 * Math.sin(t * 34) * Math.sin(t * 11.3) + Math.random() * 0.12;
+  for (let i = 0; i < BEAD_N; i++) beadSegs[i].visible = S.bead > (i + 0.15) / BEAD_N;
+  arcAngle = Math.PI / 2 + S.bead * Math.PI * 2;
+  const ar = CFG.pipeR + 0.42;
+  weldLight.position.set(0, CFG.pipeY + Math.cos(arcAngle) * ar, Math.sin(arcAngle) * ar);
+  weldGlow.position.set(0, CFG.pipeY + Math.cos(arcAngle) * (CFG.pipeR + 0.3), Math.sin(arcAngle) * (CFG.pipeR + 0.3));
   weldMat.emissiveIntensity = S.weld * 4.0 * flick;
   weldMat.color.setRGB(0.22 + S.weld * 0.35, 0.22 + S.weld * 0.1, 0.25);
   weldLight.intensity = S.weld * 26 * flick;
-  weldGlow.material.opacity = S.weld * 0.85 * flick;
-  weldGlow.scale.setScalar(5.5 + S.weld * 3.2);
+  weldGlow.material.opacity = S.weld * 0.62 * flick;
+  weldGlow.scale.setScalar(1.9 + S.weld * 1.5);
   sparks.update(dt, S.sparks);
 
   /* --- radyografi düzeneği --- */
@@ -1980,8 +2215,34 @@ function tick(){
   welder.visible  = S.welder  > 0.05;
   wrapper.visible = S.wrapper > 0.05;
 
-  /* --- geri dolgu & işaretler --- */
-  backfill.position.y = S.fill;
+  /* --- hendek kapağı: kazı ilerledikçe açılır --- */
+  clipOpen.constant = S.open;
+  lid.visible = S.open < CFG.xEnd + 1;
+  if (lid.visible){
+    lid.position.x = S.open;
+    lid.scale.x = Math.max(0.01, CFG.xEnd + 3 - S.open);
+  }
+
+  /* --- geri dolgu hat boyunca ilerler --- */
+  backfill.visible = S.fillK > 0.002;
+  if (backfill.visible) backfill.scale.x = Math.max(0.002, S.fillK);
+
+  /* --- kapatmayı yapan ikinci kepçe --- */
+  EXC2_RIG.root.visible = S.exc2 > 0.5;
+  stock.visible = EXC2_RIG.root.visible;
+  if (EXC2_RIG.root.visible){
+    const front = CFG.xStart + trenchLen * S.fillK;
+    EXC2_RIG.root.position.x = front + 6;
+    stock.position.x = front + 9;
+    EXC2_RIG.house.rotation.y  = EXC2.yaw;
+    EXC2_RIG.boom.rotation.z   = EXC2.boom;
+    EXC2_RIG.arm.rotation.z    = EXC2.arm;
+    EXC2_RIG.bucket.rotation.z = EXC2.bucket;
+    const l2 = Math.max(0.001, EXC2.load);
+    EXC2_RIG.load.visible = EXC2.load > 0.02;
+    EXC2_RIG.load.scale.set(l2, l2 * 0.6, l2 * 0.95);
+    updateRams(EXC2_RIG);
+  }
   const mk = S.marker;
   markers.visible = mk > 0.02;
   if (markers.visible) for (const m of markerMats) m.opacity = mk;
@@ -2021,7 +2282,7 @@ document.addEventListener('visibilitychange', () => {
   else { clock.getDelta(); renderer.setAnimationLoop(tick); }
 });
 
-const preheat = [ndt, sleeve, closing, film, welder, wrapper, sparks.points, dirt.points, puff.points];
+const preheat = [ndt, sleeve, closing, film, welder, wrapper, EXC2_RIG.root, sparks.points, dirt.points, puff.points];
 preheat.forEach(o => { o.userData._v = o.visible; o.visible = true; });
 renderer.compile(scene, camera);
 renderer.render(scene, camera);
