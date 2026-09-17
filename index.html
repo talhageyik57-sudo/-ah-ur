@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Inter:wght@300;400;500;600&display=swap">
+<link rel="stylesheet" href="assets/css/detay.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b0f19'/%3E%3Ccircle cx='32' cy='32' r='16' fill='none' stroke='%2300d2ff' stroke-width='4'/%3E%3Cpath d='M8 32h12M44 32h12' stroke='%2300d2ff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E">
 
 <style>
@@ -57,42 +58,6 @@ a{color:inherit;text-decoration:none}
   background-image:radial-gradient(rgba(0,0,0,.5) 1px,transparent 1px);
   background-size:3px 3px;
 }
-
-/* ---------- Header ---------- */
-.header{
-  position:fixed; top:0; left:0; right:0; z-index:20;
-  height:var(--hdr);
-  display:flex; align-items:center; justify-content:space-between; gap:24px;
-  padding:0 clamp(18px,3.4vw,52px);
-  background:linear-gradient(180deg,rgba(9,16,26,.86) 0%,rgba(9,16,26,.52) 62%,rgba(9,16,26,0) 100%);
-  transition:background .4s ease,backdrop-filter .4s ease;
-}
-.header.is-scrolled{
-  background:linear-gradient(180deg,rgba(9,16,26,.94),rgba(9,16,26,.72));
-  backdrop-filter:blur(14px) saturate(140%);
-  -webkit-backdrop-filter:blur(14px) saturate(140%);
-}
-.brand{display:flex;align-items:center;gap:12px;flex:0 0 auto}
-.brand__mark{width:38px;height:38px;flex:0 0 auto;filter:drop-shadow(0 0 10px rgba(0,182,230,.4))}
-.brand__txt{display:flex;flex-direction:column;line-height:1}
-.brand__name{font-family:var(--font-display);font-weight:700;font-size:21px;letter-spacing:.22em}
-.brand__name em{font-style:normal;color:var(--cyan-bright)}
-.brand__tag{margin-top:5px;font-size:9.5px;letter-spacing:.34em;text-transform:uppercase;color:#9fb4cf}
-.nav{display:flex;align-items:center;gap:28px}
-.nav a{
-  font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:#b3c4da;
-  font-weight:500;position:relative;padding:6px 0;transition:color .25s ease;
-}
-.nav a::after{content:'';position:absolute;left:0;right:100%;bottom:0;height:1px;background:var(--cyan-bright);transition:right .3s ease}
-.nav a:hover{color:#fff}
-.nav a:hover::after{right:0}
-.cta{
-  font-family:var(--font-display);font-weight:600;font-size:13px;letter-spacing:.16em;text-transform:uppercase;
-  padding:11px 20px;border:1px solid rgba(57,220,255,.5);border-radius:999px;color:var(--cyan-bright);
-  background:rgba(0,182,230,.12);white-space:nowrap;
-  transition:background .25s ease,box-shadow .25s ease,transform .25s ease;
-}
-.cta:hover{background:rgba(0,182,230,.26);box-shadow:0 0 24px rgba(0,182,230,.35);transform:translateY(-1px)}
 
 /* ---------- Metin kutusu ---------- */
 .hud{
@@ -141,7 +106,7 @@ a{color:inherit;text-decoration:none}
 .chips i.neon{color:var(--cyan-bright);border-color:rgba(57,220,255,.42);background:rgba(0,182,230,.12)}
 
 /* ---------- Adım göstergesi ---------- */
-.steps{
+.dots{
   position:fixed; z-index:12; right:clamp(14px,2.4vw,38px); top:50%; transform:translateY(-50%);
   display:flex;flex-direction:column;gap:16px;pointer-events:none;
   padding:16px 14px;border-radius:999px;
@@ -150,15 +115,15 @@ a{color:inherit;text-decoration:none}
   backdrop-filter:blur(10px);
   -webkit-backdrop-filter:blur(10px);
 }
-.step{display:flex;align-items:center;gap:10px;justify-content:flex-end;opacity:.5;transition:opacity .4s ease}
-.step b{font-family:var(--font-display);font-size:11px;letter-spacing:.18em;font-weight:600;color:#c2d2e6;transition:color .4s ease}
-.step u{
+.dot{display:flex;align-items:center;gap:10px;justify-content:flex-end;opacity:.5;transition:opacity .4s ease}
+.dot b{font-family:var(--font-display);font-size:11px;letter-spacing:.18em;font-weight:600;color:#c2d2e6;transition:color .4s ease}
+.dot u{
   display:block;width:20px;height:2px;border-radius:2px;background:rgba(194,210,230,.5);text-decoration:none;
   transition:width .4s cubic-bezier(.4,0,.2,1),background .4s ease,box-shadow .4s ease;
 }
-.step.is-on{opacity:1}
-.step.is-on b{color:var(--cyan-bright)}
-.step.is-on u{width:38px;background:var(--cyan-bright);box-shadow:0 0 12px rgba(57,220,255,.8)}
+.dot.is-on{opacity:1}
+.dot.is-on b{color:var(--cyan-bright)}
+.dot.is-on u{width:38px;background:var(--cyan-bright);box-shadow:0 0 12px rgba(57,220,255,.8)}
 
 /* ---------- İlerleme & ipucu ---------- */
 .progress{position:fixed;left:0;top:var(--hdr);height:2px;width:100%;z-index:19;background:rgba(11,20,32,.18)}
@@ -174,6 +139,24 @@ a{color:inherit;text-decoration:none}
 @keyframes drop{0%{transform:scaleY(.2);transform-origin:top;opacity:0}40%{opacity:1}100%{transform:scaleY(1);transform-origin:top;opacity:0}}
 
 .scroll{position:relative;z-index:2;pointer-events:none}
+
+/* ---------- 3B hikâyeden siteye geçiş ---------- */
+.site{position:relative;z-index:6}
+.site__open{
+  position:relative;min-height:100vh;display:flex;align-items:flex-end;
+  padding:0 0 clamp(60px,8vw,110px);
+  background:linear-gradient(180deg,rgba(10,18,29,0) 0%,rgba(10,18,29,.55) 34%,rgba(10,18,29,.93) 68%,var(--ink) 100%);
+}
+.site__open .wrap{width:100%}
+.site__open h1{max-width:18ch}
+.site__body{background:var(--ink)}
+.hero__act{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
+.hero__meta{display:flex;gap:clamp(18px,3vw,44px);flex-wrap:wrap;margin-top:44px;padding-top:26px;border-top:1px solid var(--line)}
+.hero__meta div b{display:block;font-family:var(--font-display);font-size:26px;color:#fff;line-height:1}
+.hero__meta div span{font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted)}
+body.is-site .hud,body.is-site .dots,body.is-site .progress,body.is-site .hint{opacity:0;pointer-events:none}
+.hud,.dots,.progress{transition:opacity .5s ease}
+body.is-site .grain{opacity:.06}
 .sec{height:200vh;height:200svh;min-height:1240px}
 
 /* ---------- Yükleme ---------- */
@@ -203,10 +186,10 @@ a{color:inherit;text-decoration:none}
   .hud{left:14px;right:14px;width:auto;top:auto;bottom:86px;transform:none}
   .panel{padding:22px 20px 20px;border-radius:16px}
   .panel p{font-size:13.5px;line-height:1.66}
-  .steps{top:auto;bottom:22px;right:auto;left:50%;transform:translateX(-50%);flex-direction:row;gap:12px;padding:10px 14px}
-  .step u{width:14px}
-  .step.is-on u{width:24px}
-  .step b{display:none}
+  .dots{top:auto;bottom:22px;right:auto;left:50%;transform:translateX(-50%);flex-direction:row;gap:12px;padding:10px 14px}
+  .dot u{width:14px}
+  .dot.is-on u{width:24px}
+  .dot b{display:none}
   .hint{display:none}
   .brand__tag{display:none}
   .cta{padding:9px 14px;font-size:11px}
@@ -223,31 +206,35 @@ a{color:inherit;text-decoration:none}
 <canvas id="scene" aria-hidden="true"></canvas>
 <div class="grain" aria-hidden="true"></div>
 
-<header class="header" id="header">
-  <a class="brand" href="index.html" aria-label="Detay NDT ana sayfa">
-    <svg class="brand__mark" viewBox="0 0 64 64" aria-hidden="true">
-      <defs><linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#39dcff"/><stop offset="1" stop-color="#0a6c8d"/>
-      </linearGradient></defs>
-      <rect x="1" y="1" width="62" height="62" rx="15" fill="#0d1422" stroke="rgba(57,220,255,.4)"/>
-      <circle cx="32" cy="32" r="15" fill="none" stroke="url(#bg1)" stroke-width="3.4"/>
-      <circle cx="32" cy="32" r="6.5" fill="none" stroke="#39dcff" stroke-width="2" opacity=".65"/>
-      <path d="M6 32h11M47 32h11" stroke="url(#bg1)" stroke-width="3.4" stroke-linecap="round"/>
-      <circle cx="32" cy="32" r="2.4" fill="#39dcff"/>
-    </svg>
-    <span class="brand__txt">
-      <span class="brand__name">DETAY<em>NDT</em></span>
-      <span class="brand__tag">Boru Hattı &amp; Tahribatsız Muayene</span>
-    </span>
-  </a>
-  <nav class="nav" aria-label="Ana menü">
-    <a href="hizmetler.html">Hizmetler</a>
-    <a href="surec.html">Süreç</a>
-    <a href="projeler.html">Projeler</a>
-    <a href="kurumsal.html">Kurumsal</a>
-    <a href="iletisim.html">İletişim</a>
-  </nav>
-  <a class="cta" href="iletisim.html#teklif">Teklif Alın</a>
+<header class="hdr" id="header">
+  <div class="wrap hdr__in">
+    <a class="brand" href="index.html" aria-label="Detay NDT ana sayfa">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <defs><linearGradient id="bg1" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stop-color="#39dcff"/><stop offset="1" stop-color="#0a6c8d"/>
+        </linearGradient></defs>
+        <rect x="1" y="1" width="62" height="62" rx="15" fill="#0d1422" stroke="rgba(57,220,255,.4)"/>
+        <circle cx="32" cy="32" r="15" fill="none" stroke="url(#bg1)" stroke-width="3.4"/>
+        <circle cx="32" cy="32" r="6.5" fill="none" stroke="#39dcff" stroke-width="2" opacity=".65"/>
+        <path d="M6 32h11M47 32h11" stroke="url(#bg1)" stroke-width="3.4" stroke-linecap="round"/>
+        <circle cx="32" cy="32" r="2.4" fill="#39dcff"/>
+      </svg>
+      <span><b>DETAY<i>NDT</i></b><span>Boru Hattı &amp; Tahribatsız Muayene</span></span>
+    </a>
+    <nav class="nav" id="nav" aria-label="Ana menü">
+      <a href="hizmetler.html">Hizmetler</a>
+      <a href="surec.html">Süreç</a>
+      <a href="projeler.html">Projeler</a>
+      <a href="kurumsal.html">Kurumsal</a>
+      <a href="iletisim.html">İletişim</a>
+    </nav>
+    <div class="hdr__cta">
+      <a class="btn btn--primary btn--sm" href="iletisim.html#teklif">Teklif Alın</a>
+      <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="nav" aria-label="Menüyü aç/kapat">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
 </header>
 
 <div class="progress" aria-hidden="true"><i id="progressBar"></i></div>
@@ -300,13 +287,13 @@ a{color:inherit;text-decoration:none}
   </div>
 </div>
 
-<div class="steps" id="steps" aria-hidden="true">
-  <div class="step is-on"><b>01</b><u></u></div>
-  <div class="step"><b>02</b><u></u></div>
-  <div class="step"><b>03</b><u></u></div>
-  <div class="step"><b>04</b><u></u></div>
-  <div class="step"><b>05</b><u></u></div>
-  <div class="step"><b>06</b><u></u></div>
+<div class="dots" id="steps" aria-hidden="true">
+  <div class="dot is-on"><b>01</b><u></u></div>
+  <div class="dot"><b>02</b><u></u></div>
+  <div class="dot"><b>03</b><u></u></div>
+  <div class="dot"><b>04</b><u></u></div>
+  <div class="dot"><b>05</b><u></u></div>
+  <div class="dot"><b>06</b><u></u></div>
 </div>
 
 <div class="hint" id="hint" aria-hidden="true"><span>Kaydırın</span><u></u></div>
@@ -322,6 +309,251 @@ a{color:inherit;text-decoration:none}
   <section class="sec"></section>
   <section class="sec"></section>
 </main>
+
+<!-- ====================== KURUMSAL SİTE ====================== -->
+<div class="site" id="site">
+
+  <!-- Devir: son kare üzerinden ana sayfaya -->
+  <section class="site__open">
+    <div class="wrap">
+      <p class="eyebrow rv">Detay NDT — Tahribatsız Muayene</p>
+      <h1 class="rv">Yer altındaki her metre, <em>kayıt altında</em>.</h1>
+      <p class="lead rv">Doğal gaz ve petrol iletim hatlarında kazıdan kapatmaya kadar tüm sürecin muayenesini tek elden yürütüyoruz. Radyografiden ultrasona, izolasyon kontrolünden as-built raporlamaya kadar her kaynak numaralanır, ölçülür ve arşivlenir.</p>
+      <div class="hero__act rv">
+        <a class="btn btn--primary" href="iletisim.html#teklif">Teklif Alın</a>
+        <a class="btn btn--ghost" href="hizmetler.html">Hizmetleri İnceleyin</a>
+      </div>
+      <div class="hero__meta rv">
+        <div><b>TS EN ISO 9712</b><span>Sertifikalı Personel</span></div>
+        <div><b>ISO 17020</b><span>Muayene Kuruluşu Yaklaşımı</span></div>
+        <div><b>7/24</b><span>Saha Ekibi</span></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="site__body">
+
+    <!-- Hizmetler -->
+    <section class="sect" id="hizmetler">
+      <div class="wrap">
+        <div class="sect__head">
+          <p class="eyebrow rv">Hizmetler</p>
+          <h2 class="rv">Tek bir ekip, <em>hattın tamamı</em></h2>
+          <p class="lead rv">Muayene yöntemlerini hattın ihtiyacına göre birlikte kurguluyoruz. Her yöntem için yazılı prosedür, kalibre ekipman ve sertifikalı personel ile çalışıyoruz.</p>
+        </div>
+        <div class="grid grid--3">
+          <article class="card rv">
+            <div class="card__ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M2 12h3M19 12h3"/></svg></div>
+            <h3>Radyografik Muayene (RT)</h3>
+            <p>Gama ve X-ışını kaynaklarıyla çevresel kaynak ağzının 360°'si sarma film üzerine kaydedilir. Film banyosu, değerlendirme ve dijital arşivleme tarafımızca yapılır.</p>
+            <div class="tags"><i>Ir-192 / Se-75</i><i>Çift Duvar</i><i>Panoramik</i></div>
+          </article>
+          <article class="card rv">
+            <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M3 12h3l2-6 4 12 3-9 2 3h4"/></svg></div>
+            <h3>Ultrasonik Muayene (UT)</h3>
+            <p>Et kalınlığı ölçümü, laminasyon taraması ve hacimsel kaynak muayenesi. Radyografinin uygulanamadığı sahalarda hızlı ve temiz alternatif.</p>
+            <div class="tags"><i>Kalınlık Ölçümü</i><i>Laminasyon</i><i>Kaynak UT</i></div>
+          </article>
+          <article class="card rv">
+            <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M4 18V7a3 3 0 0 1 6 0v10a3 3 0 0 0 6 0V6"/><path d="M4 11h6M14 11h6"/></svg></div>
+            <h3>Faz Dizili UT (PAUT)</h3>
+            <p>Elektronik taramalı problarla kaynak kesitinin haritalanması. Hata boyutlandırma ve konumlandırmada radyografiye göre daha yüksek çözünürlük.</p>
+            <div class="tags"><i>Sektör Tarama</i><i>TOFD</i><i>Kayıtlı Veri</i></div>
+          </article>
+          <article class="card rv">
+            <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M12 3v7M8 6l4-3 4 3"/><path d="M4 13h16v8H4z"/><path d="M8 17h8"/></svg></div>
+            <h3>Manyetik Parçacık (MT) &amp; Penetrant (PT)</h3>
+            <p>Yüzey ve yüzeye yakın süreksizliklerin tespiti. Kaynak ağzı hazırlığı, tamir bölgeleri ve fittings kontrollerinde uygulanır.</p>
+            <div class="tags"><i>Yoke</i><i>Renkli Penetrant</i><i>Floresan</i></div>
+          </article>
+          <article class="card rv">
+            <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.6"/></svg></div>
+            <h3>Görsel Muayene (VT) &amp; Ölçüm</h3>
+            <p>Kaynak ağzı açıklığı, hizalama, paso profili ve tamir takibi. Her birleşim numaralandırılarak kaynak kütüğüne işlenir.</p>
+            <div class="tags"><i>Kaynak Kütüğü</i><i>Mastar Ölçümü</i><i>Fotoğraf Kaydı</i></div>
+          </article>
+          <article class="card rv">
+            <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M5 20h14"/><path d="M7 16c0-5 2-9 5-9s5 4 5 9"/><path d="M12 7V3"/></svg></div>
+            <h3>İzolasyon &amp; Katodik Kontrol</h3>
+            <p>Isı ile daralan manşon uygulaması sonrası holiday (kaçak) testi, yapışma kontrolü ve katodik koruma bütünlüğünün doğrulanması.</p>
+            <div class="tags"><i>Holiday Testi</i><i>Yapışma</i><i>CP Bütünlüğü</i></div>
+          </article>
+        </div>
+        <div class="rv" style="margin-top:34px"><a class="btn btn--ghost" href="hizmetler.html">Tüm hizmet detayları</a></div>
+      </div>
+    </section>
+
+    <!-- Rakamlar -->
+    <section class="sect sect--tight">
+      <div class="wrap">
+        <div class="stats">
+          <div class="stat rv"><b><i data-count="18">0</i>+</b><span>Yıllık Saha Deneyimi</span></div>
+          <div class="stat rv"><b><i data-count="1450">0</i></b><span>km Muayene Edilen Hat</span></div>
+          <div class="stat rv"><b><i data-count="96000">0</i>+</b><span>Değerlendirilen Kaynak</span></div>
+          <div class="stat rv"><b>%<i data-count="99.4">0</i></b><span>İlk Seferde Kabul Oranı</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Süreç -->
+    <section class="sect" id="surec">
+      <div class="wrap">
+        <div class="sect__head">
+          <p class="eyebrow rv">Süreç</p>
+          <h2 class="rv">Kazıdan kapatmaya <em>altı aşama</em></h2>
+          <p class="lead rv">Yukarıda izlediğiniz akışın sahadaki karşılığı. Her aşamanın çıktısı belgelenir ve bir sonraki aşamaya kayıtla devredilir.</p>
+        </div>
+        <div class="steps">
+          <article class="step rv"><div class="step__n">01</div><div>
+            <h3>Hassas Kazı</h3>
+            <p>Güzergâh aplikasyonu, altyapı sorgusu ve şev açısına uygun kazı. Kanal kenarları duba ve koruma şeridiyle emniyete alınır, çıkan malzeme kontrollü tahliye edilir.</p></div></article>
+          <article class="step rv"><div class="step__n">02</div><div>
+            <h3>Hat Serimi ve Boru Yatağı</h3>
+            <p>Kazı tabanı ince malzeme ile yastıklanır, borular kızaklar üzerine dizilir. Kaynak ağzı açıklığı ve hizalama toleransları ölçülerek kayıt altına alınır.</p></div></article>
+          <article class="step rv"><div class="step__n">03</div><div>
+            <h3>Kaynak</h3>
+            <p>Onaylı WPS ile kök, sıcak, dolgu ve kapak pasoları. Ön ısıtma ve pasolar arası sıcaklık izlenir; her birleşim numaralanarak dijital kaynak kütüğüne işlenir.</p></div></article>
+          <article class="step rv"><div class="step__n">04</div><div>
+            <h3>NDT &amp; Radyografik Film</h3>
+            <p>Kaynak ağzına sarma film sarılır, gama projektörün kılavuz hortumu bağlanır ve saha emniyete alınır. Poz süresi sonunda film banyo edilip kabul kriterlerine göre değerlendirilir.</p></div></article>
+          <article class="step rv"><div class="step__n">05</div><div>
+            <h3>Korozyon İzolasyonu</h3>
+            <p>Yüzey hazırlığının ardından ısı ile daralan izolasyon bandı uçtan uca sarılır. Holiday testi ile süreklilik doğrulanır, katodik koruma bütünlüğü güvence altına alınır.</p></div></article>
+          <article class="step rv"><div class="step__n">06</div><div>
+            <h3>Güvenli Kapatma</h3>
+            <p>Hat kademeli tabakalar hâlinde sıkıştırılarak kapatılır, ikaz bandı ve güzergâh işaretleri yerleştirilir. Tüm kayıtlar as-built dosyası olarak işverene teslim edilir.</p></div></article>
+        </div>
+        <div class="rv" style="margin-top:34px"><a class="btn btn--ghost" href="surec.html">Süreci ayrıntılı okuyun</a></div>
+      </div>
+    </section>
+
+    <!-- Projeler -->
+    <section class="sect" id="projeler">
+      <div class="wrap">
+        <div class="sect__head">
+          <p class="eyebrow rv">Referanslar</p>
+          <h2 class="rv">Sahadan <em>seçilmiş işler</em></h2>
+        </div>
+        <div class="grid grid--3">
+          <article class="card rv">
+            <span class="card__num">2024 · İç Anadolu</span>
+            <h3>Şehir İçi Dağıtım Hattı Yenileme</h3>
+            <p>Yoğun trafik altında etaplı kazı ve gece çalışması. 12 km hatta 1.180 birleşimin radyografik muayenesi ve izolasyon kontrolü.</p>
+            <div class="tags"><i>RT</i><i>VT</i><i>Holiday</i></div>
+          </article>
+          <article class="card rv">
+            <span class="card__num">2023 · Marmara</span>
+            <h3>İletim Hattı Bağlantı Noktaları</h3>
+            <p>24" ve 36" hatlarda dirsek ve tee birleşimlerinin faz dizili UT ile muayenesi; kritik birleşimlerde ikili yöntem uygulaması.</p>
+            <div class="tags"><i>PAUT</i><i>TOFD</i><i>Raporlama</i></div>
+          </article>
+          <article class="card rv">
+            <span class="card__num">2022 · Akdeniz</span>
+            <h3>OSB Besleme Hattı</h3>
+            <p>Sahada kurulan mobil film banyosu ile aynı gün değerlendirme. Tamir oranı %0,6 seviyesinde tutularak program hedefinin önünde teslim.</p>
+            <div class="tags"><i>RT</i><i>Mobil Banyo</i><i>As-Built</i></div>
+          </article>
+        </div>
+        <div class="rv" style="margin-top:34px"><a class="btn btn--ghost" href="projeler.html">Tüm projeler</a></div>
+      </div>
+    </section>
+
+    <!-- Kurumsal teaser -->
+    <section class="sect" id="kurumsal">
+      <div class="wrap grid grid--2" style="align-items:center">
+        <div class="rv">
+          <p class="eyebrow">Kurumsal</p>
+          <h2>Ölçemediğimiz hiçbir şeyi <em>onaylamayız</em></h2>
+          <p class="lead">Detay NDT, boru hattı yüklenicileri ve işletmeciler için bağımsız muayene hizmeti verir. Ekibimiz TS EN ISO 9712 seviye II ve III personelden oluşur; ekipman parkımız periyodik kalibrasyonla izlenir.</p>
+          <ul class="ticks" style="margin-top:24px">
+            <li>Yazılı prosedür ve teknik şartname uyumu</li>
+            <li>Radyasyon güvenliği ve saha emniyeti planı</li>
+            <li>Dijital film arşivi ve izlenebilir raporlama</li>
+            <li>Bağımsız üçüncü taraf değerlendirme yaklaşımı</li>
+          </ul>
+          <div class="hero__act"><a class="btn btn--ghost" href="kurumsal.html">Kurumsal profil</a></div>
+        </div>
+        <div class="grid rv" style="gap:16px">
+          <div class="card"><h4>Belgeler ve Standartlar</h4><p>TS EN ISO 9712 · API 1104 · ASME Bölüm V · TS EN ISO 17636 · TS EN ISO 5817 kabul seviyeleri.</p></div>
+          <div class="card"><h4>Ekipman Parkı</h4><p>Gama projektör, X-ışını cihazı, dijital ultrasonik cihazlar, faz dizili sistem, holiday dedektörü, mobil karanlık oda.</p></div>
+          <div class="card"><h4>İSG ve Radyasyon Güvenliği</h4><p>Lisanslı kaynak kullanımı, dozimetre takibi, çekim alanı emniyeti, iş izni ve saha koordinasyonu.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA -->
+    <section class="sect sect--tight">
+      <div class="wrap">
+        <div class="cta rv">
+          <div class="cta__in">
+            <div>
+              <h2>Hattınız için teklif alalım</h2>
+              <p>Proje bilgilerinizi paylaşın; yöntem seçimi, personel planı ve takvimi içeren teklifimizi iki iş günü içinde iletelim.</p>
+            </div>
+            <div class="cta__act">
+              <a class="btn btn--primary" href="iletisim.html#teklif">Teklif Formu</a>
+              <a class="btn btn--ghost" href="tel:+903120000000">+90 312 000 00 00</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="ftr">
+      <div class="wrap">
+        <div class="ftr__grid">
+          <div>
+            <a class="brand" href="index.html" style="margin-bottom:18px">
+              <svg viewBox="0 0 64 64" aria-hidden="true">
+                <rect x="1" y="1" width="62" height="62" rx="15" fill="#0d1422" stroke="rgba(57,220,255,.4)"/>
+                <circle cx="32" cy="32" r="15" fill="none" stroke="#39dcff" stroke-width="3.4"/>
+                <path d="M6 32h11M47 32h11" stroke="#39dcff" stroke-width="3.4" stroke-linecap="round"/>
+                <circle cx="32" cy="32" r="2.4" fill="#39dcff"/>
+              </svg>
+              <span><b>DETAY<i>NDT</i></b><span>Tahribatsız Muayene</span></span>
+            </a>
+            <p>Doğal gaz ve petrol boru hatlarında kazıdan kapatmaya kadar muayene, raporlama ve izolasyon kontrolü.</p>
+          </div>
+          <div>
+            <h4>Hizmetler</h4>
+            <ul>
+              <li><a href="hizmetler.html#rt">Radyografik Muayene</a></li>
+              <li><a href="hizmetler.html#ut">Ultrasonik Muayene</a></li>
+              <li><a href="hizmetler.html#paut">Faz Dizili UT</a></li>
+              <li><a href="hizmetler.html#yuzey">MT / PT / VT</a></li>
+              <li><a href="hizmetler.html#izolasyon">İzolasyon Kontrolü</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>Kurumsal</h4>
+            <ul>
+              <li><a href="kurumsal.html">Hakkımızda</a></li>
+              <li><a href="surec.html">Süreç</a></li>
+              <li><a href="projeler.html">Projeler</a></li>
+              <li><a href="kurumsal.html#belgeler">Belgeler</a></li>
+              <li><a href="iletisim.html">İletişim</a></li>
+            </ul>
+          </div>
+          <div>
+            <h4>İletişim</h4>
+            <ul>
+              <li><a href="tel:+903120000000">+90 312 000 00 00</a></li>
+              <li><a href="mailto:info@detayndt.com.tr">info@detayndt.com.tr</a></li>
+              <li>Organize Sanayi Bölgesi<br>Ankara / Türkiye</li>
+            </ul>
+          </div>
+        </div>
+        <div class="ftr__bot">
+          <span>© <span id="yil">2026</span> Detay NDT. Tüm hakları saklıdır.</span>
+          <span>Muayene · Raporlama · İzolasyon Kontrolü</span>
+        </div>
+      </div>
+    </footer>
+
+  </div>
+</div>
+
 
 <div class="loader" id="loader">
   <div class="loader__name">DETAY<em>NDT</em></div>
@@ -339,6 +571,7 @@ a{color:inherit;text-decoration:none}
   </div>
 </div>
 
+<script src="assets/js/detay.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script>
@@ -1921,7 +2154,7 @@ const S = {
 
 /* ---- HUD ---- */
 const panels      = Array.from(document.querySelectorAll('.panel'));
-const stepEls     = Array.from(document.querySelectorAll('.step'));
+const stepEls     = Array.from(document.querySelectorAll('.dot'));
 const progressBar = document.getElementById('progressBar');
 const hint        = document.getElementById('hint');
 let activeIdx = -1;
@@ -2045,11 +2278,19 @@ fillCycle(7.26, 0.26);
 tl.to(S, { fillK: 1, duration: 0.32, ease: 'none' }, 7.68)
   .to(S, { closed: 1, duration: 0.20, ease: 'power2.out' }, 7.80);
 
-/* Header arka planı */
-const header = document.getElementById('header');
-window.addEventListener('scroll', () => {
-  header.classList.toggle('is-scrolled', window.scrollY > 40);
-}, { passive: true });
+/* Hikâye bitince kurumsal siteye devir */
+ScrollTrigger.create({
+  trigger: '#site', start: 'top 78%', end: 'max',
+  onToggle: self => document.body.classList.toggle('is-site', self.isActive)
+});
+
+/* Site okunurken 3B döngüsünü durdur */
+let storyPaused = false;
+ScrollTrigger.create({
+  trigger: '#site', start: 'top top', end: 'max',
+  onEnter:     () => { storyPaused = true;  renderer.setAnimationLoop(null); },
+  onLeaveBack: () => { storyPaused = false; clock.getDelta(); renderer.setAnimationLoop(tick); }
+});
 
 /* Fare paralaksı */
 const pointer = { x: 0, y: 0, tx: 0, ty: 0 };
@@ -2279,7 +2520,7 @@ window.addEventListener('orientationchange', onResize);
 
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) renderer.setAnimationLoop(null);
-  else { clock.getDelta(); renderer.setAnimationLoop(tick); }
+  else if (!storyPaused) { clock.getDelta(); renderer.setAnimationLoop(tick); }
 });
 
 const preheat = [ndt, sleeve, closing, film, welder, wrapper, EXC2_RIG.root, sparks.points, dirt.points, puff.points];
