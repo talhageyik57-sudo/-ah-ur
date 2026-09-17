@@ -14,7 +14,7 @@
 <meta property="og:locale" content="tr_TR">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="assets/css/detay.css">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23102A43'/%3E%3Ccircle cx='32' cy='32' r='16' fill='none' stroke='%23ffffff' stroke-width='4'/%3E%3Ccircle cx='32' cy='32' r='6.5' fill='none' stroke='%23D9822B' stroke-width='3'/%3E%3Cpath d='M6 32h11M47 32h11' stroke='%23ffffff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E" type="image/svg+xml">
 
@@ -168,6 +168,7 @@ body.is-site .hud,body.is-site .dots,body.is-site .progress,body.is-site .hint{o
     <nav class="nav" id="nav" aria-label="Ana menü">
       <a href="hizmetler.html">Hizmetler</a>
       <a href="surec.html">Süreç</a>
+      <a href="hata-katalogu.html">Hata Kataloğu</a>
       <a href="projeler.html">Projeler</a>
       <a href="kurumsal.html">Kurumsal</a>
       <a href="iletisim.html">İletişim</a>
@@ -281,49 +282,112 @@ body.is-site .hud,body.is-site .dots,body.is-site .progress,body.is-site .hint{o
     <section class="sect" id="hizmetler">
       <div class="wrap">
         <div class="sect__head">
-          <p class="eyebrow rv">Hizmetler</p>
+          <p class="eyebrow rv"><span class="sect__no">§ 01</span>Hizmetler</p>
           <h2 class="rv">Tek bir ekip, <em>hattın tamamı</em></h2>
           <p class="lead rv">Muayene yöntemlerini hattın ihtiyacına göre birlikte kurguluyoruz. Her yöntem için yazılı prosedür, kalibre ekipman ve sertifikalı personel ile çalışıyoruz.</p>
         </div>
         <div class="grid grid--3">
           <article class="card rv">
             <div class="card__ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="M2 12h3M19 12h3"/></svg></div>
-            <h3>Radyografik Muayene (RT)</h3>
+            <span class="spec">RT · ISO 17636 · IR-192 / SE-75</span><h3>Radyografik Muayene (RT)</h3>
             <p>Gama ve X-ışını kaynaklarıyla çevresel kaynak ağzının 360°'si sarma film üzerine kaydedilir. Film banyosu, değerlendirme ve dijital arşivleme tarafımızca yapılır.</p>
             <div class="tags"><i>Ir-192 / Se-75</i><i>Çift Duvar</i><i>Panoramik</i></div>
           </article>
           <article class="card rv">
             <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M3 12h3l2-6 4 12 3-9 2 3h4"/></svg></div>
-            <h3>Ultrasonik Muayene (UT)</h3>
+            <span class="spec">UT · ISO 17640 · 2–5 MHz</span><h3>Ultrasonik Muayene (UT)</h3>
             <p>Et kalınlığı ölçümü, laminasyon taraması ve hacimsel kaynak muayenesi. Radyografinin uygulanamadığı sahalarda hızlı ve temiz alternatif.</p>
             <div class="tags"><i>Kalınlık Ölçümü</i><i>Laminasyon</i><i>Kaynak UT</i></div>
           </article>
           <article class="card rv">
             <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M4 18V7a3 3 0 0 1 6 0v10a3 3 0 0 0 6 0V6"/><path d="M4 11h6M14 11h6"/></svg></div>
-            <h3>Faz Dizili UT (PAUT)</h3>
+            <span class="spec">PAUT / TOFD · ISO 13588</span><h3>Faz Dizili UT (PAUT)</h3>
             <p>Elektronik taramalı problarla kaynak kesitinin haritalanması. Hata boyutlandırma ve konumlandırmada radyografiye göre daha yüksek çözünürlük.</p>
             <div class="tags"><i>Sektör Tarama</i><i>TOFD</i><i>Kayıtlı Veri</i></div>
           </article>
           <article class="card rv">
             <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M12 3v7M8 6l4-3 4 3"/><path d="M4 13h16v8H4z"/><path d="M8 17h8"/></svg></div>
-            <h3>Manyetik Parçacık (MT) &amp; Penetrant (PT)</h3>
+            <span class="spec">MT · ISO 17638 / PT · ISO 3452</span><h3>Manyetik Parçacık (MT) &amp; Penetrant (PT)</h3>
             <p>Yüzey ve yüzeye yakın süreksizliklerin tespiti. Kaynak ağzı hazırlığı, tamir bölgeleri ve fittings kontrollerinde uygulanır.</p>
             <div class="tags"><i>Yoke</i><i>Renkli Penetrant</i><i>Floresan</i></div>
           </article>
           <article class="card rv">
             <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6-10-6-10-6z"/><circle cx="12" cy="12" r="2.6"/></svg></div>
-            <h3>Görsel Muayene (VT) &amp; Ölçüm</h3>
+            <span class="spec">VT · ISO 17637 · Kaynak kütüğü</span><h3>Görsel Muayene (VT) &amp; Ölçüm</h3>
             <p>Kaynak ağzı açıklığı, hizalama, paso profili ve tamir takibi. Her birleşim numaralandırılarak kaynak kütüğüne işlenir.</p>
             <div class="tags"><i>Kaynak Kütüğü</i><i>Mastar Ölçümü</i><i>Fotoğraf Kaydı</i></div>
           </article>
           <article class="card rv">
             <div class="card__ico"><svg viewBox="0 0 24 24"><path d="M5 20h14"/><path d="M7 16c0-5 2-9 5-9s5 4 5 9"/><path d="M12 7V3"/></svg></div>
-            <h3>İzolasyon &amp; Katodik Kontrol</h3>
+            <span class="spec">Holiday · ISO 21809-3</span><h3>İzolasyon &amp; Katodik Kontrol</h3>
             <p>Isı ile daralan manşon uygulaması sonrası holiday (kaçak) testi, yapışma kontrolü ve katodik koruma bütünlüğünün doğrulanması.</p>
             <div class="tags"><i>Holiday Testi</i><i>Yapışma</i><i>CP Bütünlüğü</i></div>
           </article>
         </div>
         <div class="rv" style="margin-top:34px"><a class="btn btn--ghost" href="hizmetler.html">Tüm hizmet detayları</a></div>
+      </div>
+    </section>
+
+    <!-- Hat kesiti -->
+    <section class="sect paper sect--paper" id="kesit">
+      <div class="wrap">
+        <div class="sect__head">
+          <p class="eyebrow rv"><span class="sect__no">§ 02</span>Hat kesiti</p>
+          <h2 class="rv">Bir hattın altında <em>ne var</em></h2>
+          <p class="lead rv">Muayene ettiğimiz her metre, üst üste gelen katmanlardan oluşur. Her katmanın kendi kabul ölçüsü ve kendi kaydı vardır.</p>
+        </div>
+        <div class="grid grid--2" style="align-items:center;gap:clamp(24px,3vw,48px)">
+          <figure class="figure rv" style="margin:0">
+            <svg class="dwg dwg--big" viewBox="58 46 604 326" role="img" aria-label="Boru hattı hendek kesiti">
+              <!-- zemin -->
+              <path class="soil" d="M40 124 L216 124 L270 330 L450 330 L504 124 L680 124 L680 380 L40 380 Z"/>
+              <path class="road" d="M40 108 L216 108 L216 124 L40 124 Z"/>
+              <path class="road" d="M504 108 L680 108 L680 124 L504 124 Z"/>
+              <!-- geri dolgu -->
+              <path class="mat" d="M216 124 L270 330 L450 330 L504 124 Z" opacity=".75"/>
+              <path class="dash" d="M232 180 L488 180 M245 236 L475 236 M258 292 L462 292"/>
+              <!-- kum yastık -->
+              <path class="mat2" d="M276 306 L444 306 L444 330 L276 330 Z"/>
+              <!-- ikaz bandı -->
+              <path class="defln" d="M296 168 L424 168" stroke-dasharray="14 7"/>
+              <!-- boru -->
+              <circle class="coat" cx="360" cy="252" r="47"/>
+              <circle class="mat2" cx="360" cy="252" r="41"/>
+              <circle cx="360" cy="252" r="33" fill="#ffffff" stroke="#1E3A56" stroke-width="1.2"/>
+              <path class="ctr" d="M360 190 L360 314 M298 252 L422 252"/>
+              <!-- ölçüler -->
+              <path class="thin" d="M216 92 L504 92 M216 88 L216 120 M504 88 L504 120"/>
+              <path class="thin" d="M220 89 L228 92 L220 95 M500 89 L492 92 L500 95"/>
+              <text x="360" y="86" text-anchor="middle">HENDEK GENİŞLİĞİ</text>
+              <path class="thin" d="M150 124 L150 330 M146 124 L212 124 M146 330 L266 330"/>
+              <path class="thin" d="M147 128 L150 136 L153 128 M147 326 L150 318 L153 326"/>
+              <text x="118" y="230" transform="rotate(-90 118 230)" text-anchor="middle">KAZI DERİNLİĞİ</text>
+              <path class="thin" d="M566 124 L566 205 M562 124 L676 124 M562 205 L410 205"/>
+              <path class="thin" d="M563 128 L566 136 L569 128 M563 201 L566 193 L569 201"/>
+              <text x="596" y="168">ÖRTÜ</text>
+              <path class="thin" d="M313 340 L407 340 M313 336 L313 344 M407 336 L407 344"/>
+              <text x="360" y="356" text-anchor="middle">Ø BORU</text>
+              <!-- balonlar -->
+              <path class="thin" d="M120 116 L96 72"/><circle class="bal" cx="90" cy="62" r="11"/><text class="baln" x="90" y="62">01</text>
+              <path class="thin" d="M424 168 L586 74"/><circle class="bal" cx="596" cy="68" r="11"/><text class="baln" x="596" y="68">02</text>
+              <path class="thin" d="M300 210 L120 176"/><circle class="bal" cx="108" cy="173" r="11"/><text class="baln" x="108" y="173">03</text>
+              <path class="thin" d="M396 224 L606 256"/><circle class="bal" cx="618" cy="258" r="11"/><text class="baln" x="618" y="258">04</text>
+              <path class="thin" d="M430 318 L606 332"/><circle class="bal" cx="618" cy="333" r="11"/><text class="baln" x="618" y="333">05</text>
+            </svg>
+            <figcaption><span>ÇİZİM: <b>HAT-KESİT-01</b></span><span>ÖLÇEK: ŞEMATİK</span><span>REV: <b>02</b></span></figcaption>
+          </figure>
+          <div class="rv">
+            <table class="tbl">
+              <tbody>
+                <tr><td class="mono">01</td><td><b>Asfalt ve üst kaplama</b><br>Kazı sonrası kademeli dolgu üzerine yeniden serilir.</td></tr>
+                <tr><td class="mono">02</td><td><b>İkaz bandı</b><br>Boru kotunun üzerinde, ileride yapılacak kazılarda hattı haber verir.</td></tr>
+                <tr><td class="mono">03</td><td><b>Kademeli dolgu</b><br>Tabakalar hâlinde serilip sıkıştırılır; oturma ve çökme riski böyle kontrol edilir.</td></tr>
+                <tr><td class="mono">04</td><td><b>Kaplamalı çelik boru</b><br>Sarı dış kaplama, çelik cidar ve kaynak birleşimleri. Muayenenin asıl konusu.</td></tr>
+                <tr><td class="mono">05</td><td><b>Kum yastık</b><br>Boruyu taş ve sert zeminden ayırır; kaplama hasarını önler.</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -343,7 +407,7 @@ body.is-site .hud,body.is-site .dots,body.is-site .progress,body.is-site .hint{o
     <section class="sect sect--alt" id="surec">
       <div class="wrap">
         <div class="sect__head">
-          <p class="eyebrow rv">Süreç</p>
+          <p class="eyebrow rv"><span class="sect__no">§ 03</span>Süreç</p>
           <h2 class="rv">Kazıdan kapatmaya <em>altı aşama</em></h2>
           <p class="lead rv">Yukarıda izlediğiniz akışın sahadaki karşılığı. Her aşamanın çıktısı belgelenir ve bir sonraki aşamaya kayıtla devredilir.</p>
         </div>
@@ -375,7 +439,7 @@ body.is-site .hud,body.is-site .dots,body.is-site .progress,body.is-site .hint{o
     <section class="sect" id="projeler">
       <div class="wrap">
         <div class="sect__head">
-          <p class="eyebrow rv">Referanslar</p>
+          <p class="eyebrow rv"><span class="sect__no">§ 04</span>Referanslar</p>
           <h2 class="rv">Sahadan <em>seçilmiş işler</em></h2>
         </div>
         <div class="grid grid--3">
@@ -406,7 +470,7 @@ body.is-site .hud,body.is-site .dots,body.is-site .progress,body.is-site .hint{o
     <section class="sect" id="kurumsal">
       <div class="wrap grid grid--2" style="align-items:center">
         <div class="rv">
-          <p class="eyebrow">Kurumsal</p>
+          <p class="eyebrow"><span class="sect__no">§ 05</span>Kurumsal</p>
           <h2>Ölçemediğimiz hiçbir şeyi <em>onaylamayız</em></h2>
           <p class="lead">Detay NDT, boru hattı yüklenicileri ve işletmeciler için bağımsız muayene hizmeti verir. Ekibimiz TS EN ISO 9712 seviye II ve III personelden oluşur; ekipman parkımız periyodik kalibrasyonla izlenir.</p>
           <ul class="ticks" style="margin-top:24px">
@@ -435,8 +499,8 @@ body.is-site .hud,body.is-site .dots,body.is-site .progress,body.is-site .hint{o
               <p>Proje bilgilerinizi paylaşın; yöntem seçimi, personel planı ve takvimi içeren teklifimizi iki iş günü içinde iletelim.</p>
             </div>
             <div class="cta__act">
-              <a class="btn btn--primary" href="iletisim.html#teklif">Teklif Formu</a>
-              <a class="btn btn--ghost" href="tel:+903120000000">+90 312 000 00 00</a>
+              <a class="btn btn--onDark" href="iletisim.html#teklif">Teklif Formu</a>
+              <a class="btn btn--ghostDark" href="tel:+903120000000">+90 312 000 00 00</a>
             </div>
           </div>
         </div>
@@ -474,6 +538,7 @@ body.is-site .hud,body.is-site .dots,body.is-site .progress,body.is-site .hint{o
             <ul>
               <li><a href="kurumsal.html">Hakkımızda</a></li>
               <li><a href="surec.html">Süreç</a></li>
+              <li><a href="hata-katalogu.html">Hata Kataloğu</a></li>
               <li><a href="projeler.html">Projeler</a></li>
               <li><a href="kurumsal.html#belgeler">Belgeler</a></li>
               <li><a href="iletisim.html">İletişim</a></li>
