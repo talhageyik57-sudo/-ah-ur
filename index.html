@@ -96,7 +96,25 @@
 @keyframes drop{0%{transform:scaleY(.2);transform-origin:top;opacity:0}40%{opacity:.6}100%{transform:scaleY(1);transform-origin:top;opacity:0}}
 
 .scroll{position:relative;z-index:2;pointer-events:none}
+
+/* 3B olmadan: sayfa normal kurumsal site gibi davranır */
+.no3d .scroll,.no3d #scene,.no3d .hud,.no3d .dots,.no3d .progress,.no3d .hint{display:none!important}
+.no3d .site__open{
+  min-height:auto;display:block;
+  padding:calc(var(--hdr) + clamp(48px,6vw,92px)) 0 clamp(44px,5vw,76px);
+  background:var(--bg-2);border-bottom:1px solid var(--line);
+}
+.no3d .site__open .panel{display:none}
+
+/* içeriğe geç */
+.skip{
+  position:fixed;left:-9999px;top:10px;z-index:100;padding:12px 18px;border-radius:6px;
+  background:var(--navy);color:#fff;font-size:14px;font-weight:600;
+}
+.skip:focus{left:14px}
 .sec{height:200vh;height:200svh;min-height:1240px}
+/* dokunmatik cihazlarda anlatım daha kısa sürer */
+@media (pointer:coarse){ .sec{height:140vh;height:140svh;min-height:760px} }
 
 /* ---------- 3B hikâyeden siteye geçiş ---------- */
 .site{position:relative;z-index:6}
@@ -129,8 +147,6 @@ body.is-site .hud,body.is-site .dots,body.is-site .progress,body.is-site .hint{o
 @keyframes slide{0%{transform:translateX(-120%)}100%{transform:translateX(320%)}}
 .loader small{font-size:12.5px;color:var(--muted)}
 
-.fallback{position:fixed;inset:0;z-index:95;display:none;place-items:center;text-align:center;padding:32px;background:#fff}
-.fallback.is-on{display:grid}
 
 @media (max-width:1100px){ .hud{width:min(430px,58vw)} }
 @media (max-width:860px){
@@ -152,6 +168,7 @@ body.is-site .hud,body.is-site .dots,body.is-site .progress,body.is-site .hint{o
 
 <body>
 
+<a class="skip" href="#site">İçeriğe geç</a>
 <canvas id="scene" aria-hidden="true"></canvas>
 
 <header class="hdr" id="header">
@@ -570,35 +587,32 @@ body.is-site .hud,body.is-site .dots,body.is-site .progress,body.is-site .hint{o
   <small>Saha simülasyonu hazırlanıyor</small>
 </div>
 
-<div class="fallback" id="fallback">
-  <div>
-    <div class="loader__name" style="margin-bottom:16px">DETAY<em>NDT</em></div>
-    <p style="color:#93a6c2;max-width:480px;line-height:1.7">
-      Tarayıcınız WebGL desteklemediği için 3B saha simülasyonu görüntülenemiyor.
-      Hizmet detaylarımıza <a href="hizmetler.html" style="color:#39dcff">Hizmetler</a> sayfasından ulaşabilirsiniz.
-    </p>
-  </div>
+
 </div>
 
 <script src="assets/js/detay.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script>
-/* Kütüphaneler yüklenemezse zarif geri dönüş */
-setTimeout(function(){
+/* 3B anlatım çalışmazsa (eski tarayıcı, WebGL kapalı, düşük bellek)
+   sayfa sessizce normal kurumsal siteye döner. */
+window.detay3dFail = function(){
+  if (document.documentElement.classList.contains('no3d')) return;
+  document.documentElement.classList.add('no3d');
+  document.body && document.body.classList.add('no3d');
   var l = document.getElementById('loader');
-  if (l && !l.classList.contains('is-done')){
-    l.classList.add('is-done');
-    document.getElementById('fallback').classList.add('is-on');
-  }
-}, 12000);
-</script>
-<script type="importmap">
-{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+  if (l) l.classList.add('is-done');
+  try { window.scrollTo(0, 0); } catch (e) {}
+  try { if (window.ScrollTrigger) window.ScrollTrigger.refresh(); } catch (e) {}
+};
+setTimeout(function(){ if (!window.detay3dReady) window.detay3dFail(); }, 9000);
+window.addEventListener('error', function(ev){
+  if (ev && ev.target && ev.target.tagName === 'SCRIPT' && !window.detay3dReady) window.detay3dFail();
+}, true);
 </script>
 
 <script type="module">
-import * as THREE from 'three';
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
 
 /* ============================================================
    00 — Ortam & sabitler
@@ -608,8 +622,10 @@ const loaderEl = document.getElementById('loader');
 const { gsap, ScrollTrigger } = window;
 gsap.registerPlugin(ScrollTrigger);
 
-const LOW_POWER = window.matchMedia('(max-width: 820px)').matches ||
-                  (navigator.hardwareConcurrency || 8) <= 4;
+const COARSE = window.matchMedia('(pointer: coarse)').matches;
+const LOW_POWER = window.matchMedia('(max-width: 1180px)').matches || COARSE ||
+                  (navigator.hardwareConcurrency || 8) <= 6 ||
+                  (navigator.deviceMemory || 8) <= 4;
 
 const clipOpen = new THREE.Plane(new THREE.Vector3(-1, 0, 0), 60);
 
@@ -955,11 +971,11 @@ let renderer;
 try {
   renderer = new THREE.WebGLRenderer({ canvas, antialias: !LOW_POWER, powerPreference: 'high-performance' });
 } catch (e){
-  document.getElementById('fallback').classList.add('is-on');
-  loaderEl.classList.add('is-done');
+  window.detay3dFail();
   throw e;
 }
-renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, LOW_POWER ? 1.5 : 2));
+window.detay3dReady = true;
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, LOW_POWER ? 1.35 : 2));
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 0.96;
@@ -2520,7 +2536,7 @@ function onResize(){
     const w = window.innerWidth, h = window.innerHeight;
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, LOW_POWER ? 1.5 : 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, LOW_POWER ? 1.35 : 2));
     renderer.setSize(w, h);
     ScrollTrigger.refresh();
   });

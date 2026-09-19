@@ -286,7 +286,8 @@ section{position:relative}
   .stats{grid-template-columns:repeat(2,1fr)}
   .ftr__grid{grid-template-columns:1fr 1fr}
 }
-@media (max-width:860px){
+/* tablet ve altı: menü katlanır */
+@media (max-width:1080px){
   .nav{
     position:fixed;inset:var(--hdr) 0 auto 0;flex-direction:column;align-items:stretch;gap:0;
     background:#fff;border-bottom:1px solid var(--line);box-shadow:var(--shadow-m);
@@ -296,8 +297,10 @@ section{position:relative}
   .nav a{padding:15px 0;font-size:16px;border-bottom:1px solid var(--line)}
   .nav a::after{display:none}
   .burger{display:block}
-  .hdr__cta .btn{display:none}
   .brand span{display:none}
+}
+@media (max-width:860px){
+  .hdr__cta .btn{display:none}
   .grid--2,.grid--3{grid-template-columns:1fr}
   .step{grid-template-columns:1fr;gap:6px}
   .step__n{font-size:24px;color:var(--flame)}
