@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hata Kataloğu — Detay NDT</title>
+<meta name="description" content="Kaynak kusurlarının kesit çizimleriyle kataloğu: gözenek, cüruf, yetersiz nüfuziyet, çatlak, yanma oluğu ve kaçıklık.">
+<meta name="theme-color" content="#102A43">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Detay NDT">
+<meta property="og:title" content="Hata Kataloğu — Detay NDT">
+<meta property="og:description" content="Kaynak kusurlarının kesit çizimleriyle kataloğu ve değerlendirme notları.">
+<meta property="og:locale" content="tr_TR">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/css/detay.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23102A43'/%3E%3Ccircle cx='32' cy='32' r='16' fill='none' stroke='%23ffffff' stroke-width='4'/%3E%3Ccircle cx='32' cy='32' r='6.5' fill='none' stroke='%23D9822B' stroke-width='3'/%3E%3Cpath d='M6 32h11M47 32h11' stroke='%23ffffff' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E" type="image/svg+xml">
+</head>
+<body>
+
+<header class="hdr" id="header">
+  <div class="wrap hdr__in">
+    <a class="brand" href="index.html" aria-label="Detay NDT ana sayfa">
+      <svg viewBox="0 0 64 64" aria-hidden="true">
+        <rect x="1" y="1" width="62" height="62" rx="14" fill="#102A43"/>
+        <circle cx="32" cy="32" r="15" fill="none" stroke="#ffffff" stroke-width="3.2" opacity=".92"/>
+        <circle cx="32" cy="32" r="6.4" fill="none" stroke="#D9822B" stroke-width="2.6"/>
+        <path d="M6 32h11M47 32h11" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" opacity=".92"/>
+      </svg>
+      <span><b>DETAY<i>NDT</i></b><span>Boru Hattı &amp; Tahribatsız Muayene</span></span>
+    </a>
+    <nav class="nav" id="nav" aria-label="Ana menü">
+      <a href="hizmetler.html">Hizmetler</a>
+      <a href="surec.html">Süreç</a>
+      <a href="hata-katalogu.html" aria-current="page">Hata Kataloğu</a>
+      <a href="projeler.html">Projeler</a>
+      <a href="kurumsal.html">Kurumsal</a>
+      <a href="iletisim.html">İletişim</a>
+    </nav>
+    <div class="hdr__cta">
+      <a class="btn btn--primary btn--sm" href="iletisim.html#teklif">Teklif Alın</a>
+      <button class="burger" id="burger" type="button" aria-expanded="false" aria-controls="nav" aria-label="Menüyü aç/kapat">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="joint">
+      <path d="M18 58 L118 58 L146 98 L146 104 L18 104 Z" fill="#E6EDF4" stroke="#1E3A56" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M282 58 L182 58 L154 98 L154 104 L282 104 Z" fill="#E6EDF4" stroke="#1E3A56" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M118 58 L146 98 L146 103 Q150 111 154 103 L154 98 L182 58 Q150 42 118 58 Z" fill="#C4D3E0" stroke="#1E3A56" stroke-width="1.4" stroke-linejoin="round"/>
+      <path d="M150 30 L150 128" fill="none" stroke="#8DA2B6" stroke-width="1" stroke-dasharray="10 3 2 3"/>
+      <path d="M40 58 L40 104 M36 58 L114 58 M36 104 L142 104" fill="none" stroke="#9CB0C2" stroke-width="0.9"/>
+      <path d="M37 62 L40 70 L43 62 M37 100 L40 92 L43 100" fill="none" stroke="#9CB0C2" stroke-width="0.9"/>
+      <text x="32" y="83" text-anchor="end" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#5B6E82">t</text>
+      <text x="150" y="26" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="9" fill="#7C8FA3" letter-spacing="0.5">KAYNAK KESİTİ</text>
+      <text x="282" y="118" text-anchor="end" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#9CB0C2">İÇ YÜZEY</text>
+      <text x="18" y="52" font-family="'IBM Plex Mono',monospace" font-size="8.5" fill="#9CB0C2">DIŞ YÜZEY</text>
+    </g>
+  </defs>
+</svg>
+
+<main>
+  <section class="phero">
+    <div class="wrap">
+      <p class="crumbs"><a href="index.html">Ana Sayfa</a> &nbsp;/&nbsp; Hata Kataloğu</p>
+      <h1 class="rv">Kaynak kusurları, <em>kesitten okunur</em></h1>
+      <p class="lead rv">Sahada en sık karşılaştığımız sekiz kusur tipi; nasıl oluştuğu, hangi yöntemle bulunduğu ve nasıl değerlendirildiğiyle birlikte. Çizimler kaynak ağzının enine kesitini gösterir.</p>
+      <p class="spec rv" style="margin-top:22px">REF: ISO 6520-1 &nbsp;·&nbsp; DEĞ: API 1104 / ISO 5817 &nbsp;·&nbsp; YÖN: RT · UT · PAUT · MT · PT · VT</p>
+    </div>
+  </section>
+
+  <section class="sect paper sect--paper">
+    <div class="wrap">
+      <div class="grid grid--2">
+      <article class="defect rv">
+    <div class="defect__d">
+      <svg class="dwg" viewBox="0 18 300 126" role="img" aria-label="Gözenek kaynak kesiti">
+      <use href="#joint"/>
+      <circle class="def" cx="139" cy="77" r="3.6"/><circle class="def" cx="153" cy="68" r="2.6"/>
+      <circle class="def" cx="147" cy="88" r="2.2"/><circle class="def" cx="160" cy="79" r="3"/>
+      <circle class="def" cx="132" cy="66" r="2"/>
+      <path class="thin" d="M160 74 L186 62"/>
+      <circle class="bal" cx="196" cy="62" r="10"/>
+      <text class="baln" x="196" y="62">01</text>
+      </svg>
+    </div>
+        <div class="defect__b">
+          <span class="defect__code">ISO 6520-1 · 2011</span>
+          <h3>Gözenek</h3>
+          <p>Ergimiş kaynak metali içinde hapsolan gazın katılaşma sırasında boşluk bırakmasıdır. Tek tek dağınık olabileceği gibi küme veya sıra hâlinde de görülür.</p>
+          <dl>
+            <dt>Tespit</dt><dd>RT · UT</dd>
+            <dt>Tipik sebep</dt><dd>Nemli elektrod, kirli ağız yüzeyi, yetersiz gaz koruması, uzun ark boyu</dd>
+            <dt>Değerlendirme</dt><dd>Boyut, sıklık ve kümelenmeye göre API 1104 / ISO 5817 seviyesinde değerlendirilir.</dd>
+          </dl>
+        </div>
+      </article>
+      <article class="defect rv">
+    <div class="defect__d">
+      <svg class="dwg" viewBox="0 18 300 126" role="img" aria-label="Cüruf Kalıntısı kaynak kesiti">
+      <use href="#joint"/>
+      <path class="def" d="M126 70 q8 -4 15 4 q6 7 -1 10 q-9 4 -14 -4 q-4 -6 0 -10 z"/>
+      <path class="def" d="M158 84 q7 -3 11 3 q3 5 -3 7 q-8 2 -10 -3 q-2 -5 2 -7 z"/>
+      <path class="thin" d="M160 74 L186 62"/>
+      <circle class="bal" cx="196" cy="62" r="10"/>
+      <text class="baln" x="196" y="62">02</text>
+      </svg>
+    </div>
+        <div class="defect__b">
+          <span class="defect__code">ISO 6520-1 · 301</span>
+          <h3>Cüruf Kalıntısı</h3>
+          <p>Pasolar arasında yeterince temizlenmeyen cürufun bir sonraki paso tarafından kaynak metali içine hapsedilmesidir. Genellikle ergime çizgisi boyunca uzanır.</p>
+          <dl>
+            <dt>Tespit</dt><dd>RT · UT</dd>
+            <dt>Tipik sebep</dt><dd>Pasolar arası yetersiz temizlik, dar ağız açısı, düşük akım</dd>
+            <dt>Değerlendirme</dt><dd>Uzunluk ve genişlik sınırları şartname kabul seviyesine göre uygulanır.</dd>
+          </dl>
+        </div>
+      </article>
+      <article class="defect rv">
+    <div class="defect__d">
+      <svg class="dwg" viewBox="0 18 300 126" role="img" aria-label="Yetersiz Kök Nüfuziyeti kaynak kesiti">
+      <use href="#joint"/>
+      <path class="def" d="M146 92 L154 92 L154 104 L146 104 Z"/>
+      <path class="defln" d="M140 110 L160 110"/>
+      <path class="thin" d="M160 108 L186 118"/>
+      <circle class="bal" cx="196" cy="118" r="10"/>
+      <text class="baln" x="196" y="118">03</text>
+      </svg>
+    </div>
+        <div class="defect__b">
+          <span class="defect__code">ISO 6520-1 · 4021</span>
+          <h3>Yetersiz Kök Nüfuziyeti</h3>
+          <p>Kök pasosunun boru et kalınlığının tamamına ulaşamaması; kök bölgesinde birleşmemiş bir boşluk kalmasıdır. Basınçlı hatlarda en kritik kusur sınıflarındandır.</p>
+          <dl>
+            <dt>Tespit</dt><dd>RT · UT · PAUT</dd>
+            <dt>Tipik sebep</dt><dd>Geniş kök açıklığı yokluğu, düşük akım, hatalı elektrod açısı, yüksek ilerleme hızı</dd>
+            <dt>Değerlendirme</dt><dd>Genellikle sıfır tolerans yaklaşımıyla ele alınır; tespit hâlinde tamir edilir.</dd>
+          </dl>
+        </div>
+      </article>
+      <article class="defect rv">
+    <div class="defect__d">
+      <svg class="dwg" viewBox="0 18 300 126" role="img" aria-label="Yetersiz Ergime kaynak kesiti">
+      <use href="#joint"/>
+      <path class="defln" d="M122 63 L145 96"/>
+      <path class="defln" d="M178 63 L156 90" opacity=".55"/>
+      <path class="thin" d="M168 72 L186 62"/>
+      <circle class="bal" cx="196" cy="62" r="10"/>
+      <text class="baln" x="196" y="62">04</text>
+      </svg>
+    </div>
+        <div class="defect__b">
+          <span class="defect__code">ISO 6520-1 · 401</span>
+          <h3>Yetersiz Ergime</h3>
+          <p>Kaynak metali ile esas metal arasında ya da pasolar arasında metalurjik bağın oluşmamasıdır. Ergime çizgisi boyunca ince bir ayrılma olarak görülür.</p>
+          <dl>
+            <dt>Tespit</dt><dd>UT · PAUT · RT (sınırlı)</dd>
+            <dt>Tipik sebep</dt><dd>Düşük ısı girdisi, hatalı elektrod konumu, kirli yüzey</dd>
+            <dt>Değerlendirme</dt><dd>Radyografide düzlemsel olduğu için gözden kaçabilir; şüphede ultrasonik doğrulama yapılır.</dd>
+          </dl>
+        </div>
+      </article>
+      <article class="defect rv">
+    <div class="defect__d">
+      <svg class="dwg" viewBox="0 18 300 126" role="img" aria-label="Yanma Oluğu kaynak kesiti">
+      <use href="#joint"/>
+      <path class="def" d="M112 58 q8 1 10 6 q-9 2 -13 -1 q-2 -3 3 -5 z"/>
+      <path class="def" d="M188 58 q-8 1 -10 6 q9 2 13 -1 q2 -3 -3 -5 z"/>
+      <path class="thin" d="M186 56 L186 44"/>
+      <circle class="bal" cx="196" cy="44" r="10"/>
+      <text class="baln" x="196" y="44">05</text>
+      </svg>
+    </div>
+        <div class="defect__b">
+          <span class="defect__code">ISO 6520-1 · 5011</span>
+          <h3>Yanma Oluğu</h3>
+          <p>Kaynak dikişinin kenarında esas metalin eriyip yeniden doldurulmaması sonucu oluşan oluk. Kesiti daraltır ve gerilme yığılması yaratır.</p>
+          <dl>
+            <dt>Tespit</dt><dd>VT · RT</dd>
+            <dt>Tipik sebep</dt><dd>Yüksek akım, uzun ark, hatalı salınım ve ilerleme hızı</dd>
+            <dt>Değerlendirme</dt><dd>Derinlik ve süreklilik ölçülür; API 1104 sınırlarını aşan oluklar taşlanarak düzeltilir.</dd>
+          </dl>
+        </div>
+      </article>
+      <article class="defect rv">
+    <div class="defect__d">
+      <svg class="dwg" viewBox="0 18 300 126" role="img" aria-label="Çatlak kaynak kesiti">
+      <use href="#joint"/>
+      <path class="defln" d="M150 50 L146 60 L153 70 L147 82 L152 92 L149 100"/>
+      <path class="thin" d="M156 60 L186 50"/>
+      <circle class="bal" cx="196" cy="50" r="10"/>
+      <text class="baln" x="196" y="50">06</text>
+      </svg>
+    </div>
+        <div class="defect__b">
+          <span class="defect__code">ISO 6520-1 · 100</span>
+          <h3>Çatlak</h3>
+          <p>Kaynak metali veya ısıdan etkilenen bölgede malzeme sürekliliğinin ayrılmasıdır. Boyuna, enine veya krater çatlağı biçiminde görülebilir.</p>
+          <dl>
+            <dt>Tespit</dt><dd>RT · UT · MT · PT</dd>
+            <dt>Tipik sebep</dt><dd>Hızlı soğuma, yüksek sertleşme eğilimi, hidrojen, aşırı kısıtlama</dd>
+            <dt>Değerlendirme</dt><dd>Her boyutta kabul edilemez; tespit edilen çatlak tamamen kaldırılarak tamir edilir.</dd>
+          </dl>
+        </div>
+      </article>
+      <article class="defect rv">
+    <div class="defect__d">
+      <svg class="dwg" viewBox="0 18 300 126" role="img" aria-label="Aşırı Nüfuziyet / Sarkma kaynak kesiti">
+      <use href="#joint"/>
+      <path class="def" d="M142 103 q8 18 16 0 q-8 6 -16 0 z"/>
+      <path class="dash" d="M120 104 L180 104"/>
+      <path class="thin" d="M160 114 L186 122"/>
+      <circle class="bal" cx="196" cy="122" r="10"/>
+      <text class="baln" x="196" y="122">07</text>
+      </svg>
+    </div>
+        <div class="defect__b">
+          <span class="defect__code">ISO 6520-1 · 504</span>
+          <h3>Aşırı Nüfuziyet / Sarkma</h3>
+          <p>Kök pasosunun boru iç yüzeyinden aşırı sarkması. Akış kesitini daraltır, pig geçişini ve iç yüzey kaplamasını etkileyebilir.</p>
+          <dl>
+            <dt>Tespit</dt><dd>RT</dd>
+            <dt>Tipik sebep</dt><dd>Geniş kök açıklığı, yüksek akım, düşük ilerleme hızı</dd>
+            <dt>Değerlendirme</dt><dd>Sarkma yüksekliği ölçülerek şartname sınırıyla karşılaştırılır.</dd>
+          </dl>
+        </div>
+      </article>
+      <article class="defect rv">
+    <div class="defect__d">
+      <svg class="dwg" viewBox="0 18 300 126" role="img" aria-label="Kaçıklık (Hi-Lo) kaynak kesiti">
+      <path class="mat" d="M18 54 L118 54 L146 94 L146 100 L18 100 Z"/>
+      <path class="mat" d="M282 61 L182 61 L154 101 L154 107 L282 107 Z"/>
+      <path class="weld" d="M118 54 L146 94 L146 100 L154 101 L154 101 L182 61 Q150 42 118 54 Z"/>
+      <path class="dash" d="M120 100 L200 100 M120 107 L200 107"/>
+      <path class="defln" d="M196 100 L196 107"/>
+      <path class="thin" d="M193 101 L199 103 M193 106 L199 104"/>
+      <text class="lbl" x="204" y="107">KAÇIKLIK</text>
+      <path class="ctr" d="M150 34 L150 126"/>
+      <text x="150" y="33" text-anchor="middle">KAYNAK KESİTİ</text>
+      <path class="thin" d="M200 80 L222 62"/>
+      <circle class="bal" cx="232" cy="62" r="10"/>
+      <text class="baln" x="232" y="62">08</text>
+      </svg>
+    </div>
+        <div class="defect__b">
+          <span class="defect__code">ISO 6520-1 · 507</span>
+          <h3>Kaçıklık (Hi-Lo)</h3>
+          <p>Birleştirilen iki borunun iç yüzeylerinin aynı hizada olmaması. Kaynak öncesi hizalama hatasından kaynaklanır ve kök kusurlarını tetikler.</p>
+          <dl>
+            <dt>Tespit</dt><dd>VT · RT · Ölçüm</dd>
+            <dt>Tipik sebep</dt><dd>Ovalite, et kalınlığı farkı, yetersiz iç/dış klemp kullanımı</dd>
+            <dt>Değerlendirme</dt><dd>Kaynak öncesi mastarla ölçülür; sınırı aşan kaçıklıkta ağız yeniden hizalanır.</dd>
+          </dl>
+        </div>
+      </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sect sect--tight band">
+    <div class="wrap">
+      <div class="sect__head">
+        <p class="eyebrow rv"><span class="sect__no">§</span>Değerlendirme</p>
+        <h2 class="rv">Kusur bulmak yetmez, <em>doğru karar</em> gerekir</h2>
+        <p class="lead rv">Bir süreksizliğin kusur sayılıp sayılmayacağı; tipine, boyutuna, konumuna ve projenin kabul seviyesine bağlıdır. Aynı gözenek bir hatta kabul edilirken diğerinde tamir gerektirebilir.</p>
+      </div>
+      <div class="grid grid--3">
+        <div class="card rv"><span class="spec">01 / TİP</span><h3>Düzlemsel mi, hacimsel mi?</h3><p>Çatlak ve ergime hatası düzlemseldir; gerilme altında ilerler, tolerans neredeyse yoktur. Gözenek hacimseldir, sınırlı boyutta kabul edilebilir.</p></div>
+        <div class="card rv"><span class="spec">02 / KONUM</span><h3>Kökte mi, kapakta mı?</h3><p>Kök bölgesindeki kusurlar iç basınç altında daha kritiktir. Aynı boyuttaki bir süreksizlik kapak pasosunda farklı değerlendirilir.</p></div>
+        <div class="card rv"><span class="spec">03 / BİRİKİM</span><h3>Tek mi, sıra hâlinde mi?</h3><p>Ayrı ayrı kabul edilebilir süreksizlikler belirli bir uzunlukta toplandığında birlikte değerlendirilir ve reddedilebilir.</p></div>
+      </div>
+      <p class="lead rv" style="margin-top:30px">Kabul seviyesi proje başında şartname ile yazılı olarak netleştirilir; saha bu çerçevenin dışına çıkmaz.</p>
+    </div>
+  </section>
+
+  <section class="sect sect--tight">
+    <div class="wrap">
+      <p class="dimrule rv">TAMİR VE YENİDEN MUAYENE AKIŞI</p>
+      <div class="steps" style="margin-top:26px">
+        <article class="step rv"><div class="step__n">01</div><div><h3>Tespit ve işaretleme</h3><p>Kusurun tipi, boyutu ve kaynak ekseni üzerindeki konumu raporlanır; birleşim numarası üzerinden kayda geçer.</p></div></article>
+        <article class="step rv"><div class="step__n">02</div><div><h3>Kaldırma</h3><p>Onaylı tamir prosedürüne göre kusurlu bölge taşlama veya oyma ile tamamen kaldırılır, sınırları görsel olarak doğrulanır.</p></div></article>
+        <article class="step rv"><div class="step__n">03</div><div><h3>Yeniden kaynak</h3><p>Ön ısıtma ve paso sırası tamir WPS'ine göre uygulanır; kaynakçı ve parametreler yeniden kaydedilir.</p></div></article>
+        <article class="step rv"><div class="step__n">04</div><div><h3>Yeniden muayene</h3><p>Tamir bölgesi aynı yöntemle yeniden muayene edilir. Sonuç, ilk muayene kaydıyla birlikte aynı birleşim numarası altında arşivlenir.</p></div></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="sect sect--tight">
+    <div class="wrap">
+      <div class="cta rv">
+        <div class="cta__in">
+          <div>
+            <h2>Hattınızdaki kusurları biz değerlendirelim</h2>
+            <p>Yöntem seçimi, kabul kriterleri ve raporlama düzenini projenize göre kuralım.</p>
+          </div>
+          <div class="cta__act">
+            <a class="btn btn--onDark" href="iletisim.html#teklif">Teklif Formu</a>
+            <a class="btn btn--ghostDark" href="hizmetler.html">Muayene Yöntemleri</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="ftr">
+  <div class="wrap">
+    <div class="ftr__grid">
+      <div>
+        <a class="brand" href="index.html" style="margin-bottom:18px">
+          <svg viewBox="0 0 64 64" aria-hidden="true">
+            <rect x="1" y="1" width="62" height="62" rx="14" fill="rgba(255,255,255,.08)" stroke="rgba(255,255,255,.22)"/>
+            <circle cx="32" cy="32" r="15" fill="none" stroke="#ffffff" stroke-width="3.2" opacity=".9"/>
+            <circle cx="32" cy="32" r="6.4" fill="none" stroke="#F0A24A" stroke-width="2.6"/>
+            <path d="M6 32h11M47 32h11" stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" opacity=".9"/>
+          </svg>
+          <span><b>DETAY<i>NDT</i></b><span>Tahribatsız Muayene</span></span>
+        </a>
+        <p>Doğal gaz ve petrol boru hatlarında kazıdan kapatmaya kadar muayene, raporlama ve izolasyon kontrolü.</p>
+      </div>
+      <div>
+        <h4>Hizmetler</h4>
+        <ul>
+          <li><a href="hizmetler.html#rt">Radyografik Muayene</a></li>
+          <li><a href="hizmetler.html#ut">Ultrasonik Muayene</a></li>
+          <li><a href="hizmetler.html#paut">Faz Dizili UT</a></li>
+          <li><a href="hizmetler.html#yuzey">MT / PT / VT</a></li>
+          <li><a href="hizmetler.html#izolasyon">İzolasyon Kontrolü</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>Kurumsal</h4>
+        <ul>
+          <li><a href="kurumsal.html">Hakkımızda</a></li>
+          <li><a href="surec.html">Süreç</a></li>
+              <li><a href="hata-katalogu.html">Hata Kataloğu</a></li>
+          <li><a href="projeler.html">Projeler</a></li>
+          <li><a href="kurumsal.html#belgeler">Belgeler</a></li>
+          <li><a href="iletisim.html">İletişim</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4>İletişim</h4>
+        <ul>
+          <li><a href="tel:+903120000000">+90 312 000 00 00</a></li>
+          <li><a href="mailto:info@detayndt.com.tr">info@detayndt.com.tr</a></li>
+          <li>Organize Sanayi Bölgesi<br>Ankara / Türkiye</li>
+        </ul>
+      </div>
+    </div>
+    <div class="ftr__bot">
+      <span>© <span id="yil">2026</span> Detay NDT. Tüm hakları saklıdır.</span>
+      <span>Muayene · Raporlama · İzolasyon Kontrolü</span>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/detay.js" defer></script>
+</body>
+</html>
