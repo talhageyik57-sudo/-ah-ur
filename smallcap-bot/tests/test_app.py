@@ -119,3 +119,33 @@ class BuildApplicationTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+@unittest.skipIf(app is None, "python-telegram-bot kurulu değil")
+class StartupErrorTest(unittest.TestCase):
+    """Başlatma hataları kullanıcıya ham traceback olarak gitmemeli."""
+
+    def _run_main_with(self, error):
+        from telegram.error import InvalidToken, NetworkError  # noqa: F401
+
+        fake = mock.MagicMock()
+        fake.run_polling.side_effect = error
+        with mock.patch.object(app, "build_application", return_value=fake), mock.patch.object(
+            app.Settings, "from_env", return_value=Settings(bot_token="1:AA")
+        ):
+            with self.assertRaises(RuntimeError) as ctx:
+                app.main()
+        return str(ctx.exception)
+
+    def test_invalid_token_is_explained(self):
+        from telegram.error import InvalidToken
+
+        message = self._run_main_with(InvalidToken("bad token"))
+        self.assertIn("BotFather", message)
+
+    def test_network_error_is_explained(self):
+        from telegram.error import NetworkError
+
+        message = self._run_main_with(NetworkError("proxy 403"))
+        self.assertIn("api.telegram.org", message)
+        self.assertIn("proxy 403", message)

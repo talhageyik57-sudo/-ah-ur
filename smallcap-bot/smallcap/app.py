@@ -18,6 +18,7 @@ from typing import Optional
 
 from telegram import BotCommand, Update
 from telegram.constants import ParseMode
+from telegram.error import InvalidToken, NetworkError
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -179,8 +180,23 @@ def main() -> None:
     )
     logging.getLogger("httpx").setLevel(logging.WARNING)
     application = build_application(settings)
-    logger.info("Bot başlatılıyor (parse_mode=%s, canlı veri=%s)", settings.parse_mode, settings.auto_fetch)
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    logger.info(
+        "Bot başlatılıyor (parse_mode=%s, canlı veri=%s)", settings.parse_mode, settings.auto_fetch
+    )
+    try:
+        application.run_polling(allowed_updates=Update.ALL_TYPES)
+    except InvalidToken as exc:
+        # Ham traceback yerine ne yapılacağını söyleyen mesaj göster.
+        raise RuntimeError(
+            "TELEGRAM_BOT_TOKEN geçersiz. BotFather'da /mybots > API Token "
+            "adımından token'ı yeniden alıp .env dosyasına yazın."
+        ) from exc
+    except NetworkError as exc:
+        raise RuntimeError(
+            "Telegram API'sine ulaşılamadı. İnternet bağlantısını, proxy/güvenlik "
+            "duvarı ayarlarını ve api.telegram.org erişimini kontrol edin.\n"
+            f"Ayrıntı: {exc}"
+        ) from exc
 
 
 if __name__ == "__main__":
