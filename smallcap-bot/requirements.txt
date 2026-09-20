@@ -1,0 +1,6 @@
+# Telegram bot çalışma zamanı
+python-telegram-bot>=21.0,<22.0
+
+# İsteğe bağlı: canlı fiyat verisi (Finnhub yalnızca stdlib ile çalışır,
+# ek paket gerektirmez). yfinance kullanmak isterseniz satırı açın:
+# yfinance>=0.2.40
