@@ -51,6 +51,7 @@ class Settings:
     parse_mode: str = "html"
     allowed_chat_ids: frozenset[int] = field(default_factory=frozenset)
     target_chat_id: Optional[str] = None
+    api_base_url: Optional[str] = None
     finnhub_api_key: Optional[str] = None
     auto_fetch: bool = True
     request_timeout: float = 10.0
@@ -70,6 +71,7 @@ class Settings:
             parse_mode=(os.getenv("TELEGRAM_PARSE_MODE") or "html").strip().lower(),
             allowed_chat_ids=ids,
             target_chat_id=(os.getenv("TELEGRAM_TARGET_CHAT_ID") or "").strip() or None,
+            api_base_url=(os.getenv("TELEGRAM_API_BASE_URL") or "").strip() or None,
             finnhub_api_key=os.getenv("FINNHUB_API_KEY") or None,
             auto_fetch=_as_bool(os.getenv("AUTO_FETCH"), True),
             request_timeout=float(os.getenv("REQUEST_TIMEOUT", "10") or 10),

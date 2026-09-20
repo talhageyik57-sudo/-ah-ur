@@ -169,6 +169,7 @@ Tüm ayarlar ortam değişkeni ya da `.env` dosyası ile verilir:
 | `FINNHUB_API_KEY` | boş | Finnhub anahtarı |
 | `REQUEST_TIMEOUT` | `10` | Canlı veri zaman aşımı (sn) |
 | `LOG_LEVEL` | `INFO` | Günlük seviyesi |
+| `TELEGRAM_API_BASE_URL` | boş | Kendi Bot API sunucunuzun adresi; boşsa resmî API kullanılır |
 
 `html` biçimi önerilir: Telegram MarkdownV2'de `.`, `-`, `!` gibi
 karakterlerin kaçışı gerekir ve haber metni bunları sık içerir.
@@ -201,7 +202,7 @@ smallcap-bot/
 │   ├── config.py           Ortam değişkeni yapılandırması
 │   ├── cli.py              Terminal arayüzü
 │   └── app.py              Telegram handler'ları
-└── tests/                  122 birim testi (yalnızca stdlib)
+└── tests/                  125 birim testi (yalnızca stdlib)
 ```
 
 ## Sürekli çalıştırma

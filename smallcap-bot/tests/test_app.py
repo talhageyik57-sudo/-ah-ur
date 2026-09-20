@@ -129,6 +129,16 @@ class BuildApplicationTest(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             app.build_application(Settings(bot_token="1:AA", parse_mode="wingdings"))
 
+    def test_custom_api_base_url_is_applied(self):
+        application = app.build_application(
+            Settings(bot_token="1:AA", api_base_url="http://127.0.0.1:8099/bot")
+        )
+        self.assertTrue(application.bot.base_url.startswith("http://127.0.0.1:8099/bot"))
+
+    def test_default_api_base_url_is_telegram(self):
+        application = app.build_application(Settings(bot_token="1:AA"))
+        self.assertTrue(application.bot.base_url.startswith("https://api.telegram.org/bot"))
+
     def test_builds_with_token(self):
         application = app.build_application(Settings(bot_token="1:AA", parse_mode="html"))
         self.assertEqual(application.bot_data["settings"].parse_mode, "html")

@@ -32,6 +32,7 @@ class FromEnvTest(unittest.TestCase):
         "TELEGRAM_PARSE_MODE": "HTML",
         "TELEGRAM_ALLOWED_CHAT_IDS": "5418325557, -1001234567890 ;kötü",
         "TELEGRAM_TARGET_CHAT_ID": "-1001234567890",
+        "TELEGRAM_API_BASE_URL": "http://127.0.0.1:8099/bot",
         "AUTO_FETCH": "hayır",
     }
 
@@ -42,7 +43,12 @@ class FromEnvTest(unittest.TestCase):
         self.assertEqual(settings.parse_mode, "html")
         self.assertEqual(settings.allowed_chat_ids, frozenset({5418325557, -1001234567890}))
         self.assertEqual(settings.target_chat_id, "-1001234567890")
+        self.assertEqual(settings.api_base_url, "http://127.0.0.1:8099/bot")
         self.assertFalse(settings.auto_fetch, "AUTO_FETCH=hayır kapalı demek")
+
+    def test_api_base_url_defaults_to_none(self):
+        with mock.patch.dict(os.environ, {"TELEGRAM_BOT_TOKEN": "1:AA"}, clear=True):
+            self.assertIsNone(Settings.from_env("/yok/boyle/bir/.env").api_base_url)
 
 
 class AuthorizationTest(unittest.TestCase):

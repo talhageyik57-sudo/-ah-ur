@@ -283,7 +283,11 @@ def build_application(settings: Optional[Settings] = None) -> Application:
     if settings.parse_mode not in _PARSE_MODES:
         raise RuntimeError(f"Geçersiz TELEGRAM_PARSE_MODE: {settings.parse_mode}")
 
-    application = Application.builder().token(settings.bot_token).post_init(_post_init).build()
+    builder = Application.builder().token(settings.bot_token).post_init(_post_init)
+    if settings.api_base_url:
+        # Kendi Bot API sunucusunu çalıştıranlar için (yerel kurulum, test).
+        builder = builder.base_url(settings.api_base_url)
+    application = builder.build()
     application.bot_data["settings"] = settings
 
     application.add_handler(CommandHandler(["start", "yardim", "help"], cmd_start))
