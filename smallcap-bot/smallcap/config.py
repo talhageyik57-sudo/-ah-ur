@@ -50,6 +50,7 @@ class Settings:
     bot_token: Optional[str] = None
     parse_mode: str = "html"
     allowed_chat_ids: frozenset[int] = field(default_factory=frozenset)
+    target_chat_id: Optional[str] = None
     finnhub_api_key: Optional[str] = None
     auto_fetch: bool = True
     request_timeout: float = 10.0
@@ -68,6 +69,7 @@ class Settings:
             bot_token=os.getenv("TELEGRAM_BOT_TOKEN") or None,
             parse_mode=(os.getenv("TELEGRAM_PARSE_MODE") or "html").strip().lower(),
             allowed_chat_ids=ids,
+            target_chat_id=(os.getenv("TELEGRAM_TARGET_CHAT_ID") or "").strip() or None,
             finnhub_api_key=os.getenv("FINNHUB_API_KEY") or None,
             auto_fetch=_as_bool(os.getenv("AUTO_FETCH"), True),
             request_timeout=float(os.getenv("REQUEST_TIMEOUT", "10") or 10),
@@ -79,3 +81,29 @@ class Settings:
         if not self.allowed_chat_ids:
             return True
         return chat_id is not None and chat_id in self.allowed_chat_ids
+
+    def can_broadcast(self, chat_id: Optional[int]) -> bool:
+        """Kanala gönderme yetkisi.
+
+        Beyaz liste boşken kanala gönderime izin verilmez: aksi halde botu
+        bulan herkes kanalınıza gönderi attırabilir. Yayın için hedef kanal
+        **ve** yetkili kullanıcı listesi birlikte tanımlanmalıdır.
+        """
+        if not self.target_chat_id or not self.allowed_chat_ids:
+            return False
+        return chat_id is not None and chat_id in self.allowed_chat_ids
+
+    def broadcast_hint(self) -> str:
+        """Yayın kapalıysa nedenini söyleyen mesaj."""
+        if not self.target_chat_id:
+            return (
+                "Hedef kanal tanımlı değil. .env dosyasına "
+                "`TELEGRAM_TARGET_CHAT_ID=-100...` satırını ekleyin."
+            )
+        if not self.allowed_chat_ids:
+            return (
+                "Güvenlik gereği kanala gönderim için yetkili kullanıcı listesi "
+                "zorunludur. .env dosyasına `TELEGRAM_ALLOWED_CHAT_IDS=<sizin id>` "
+                "satırını ekleyin."
+            )
+        return "Bu sohbetin kanala gönderim yetkisi yok."

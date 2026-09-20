@@ -45,6 +45,7 @@ RKLB 4.25 %32 FDA onayı sonrası hacim patlaması
 |---|---|
 | `/analiz <girdi>` | Gönderiyi üretir |
 | `/detay <girdi>` | Seviyelerin hesap gerekçesi, birim risk ve R/R oranı |
+| `/gonder <girdi>` | Gönderiyi üretip doğrudan hedef kanala atar |
 | `/ornek` | Örnek gönderi |
 | `/yardim` | Kullanım bilgisi |
 
@@ -116,6 +117,32 @@ Hacim ve float verildiğinde katalizör satırına RVOL ve squeeze notu eklenir
 `/detay` çıktısı hangi kuralın uygulandığını, birim riski ve R/R oranını
 gösterir — seviyeleri paylaşmadan önce gözden geçirmek için kullanın.
 
+## Kanala gönderme
+
+Analizi görüp onayladıktan sonra kanala iletmek için iki yol var:
+
+- Üretilen her gönderinin altındaki **📢 Kanala Gönder** butonu — önce
+  seviyeleri gözden geçirir, beğenirseniz tek dokunuşla atarsınız
+- `/gonder <girdi>` — analizi üretip doğrudan kanala atar
+
+Açmak için `.env` dosyasında **iki** alan da dolu olmalıdır:
+
+```ini
+TELEGRAM_ALLOWED_CHAT_IDS=5418325557      # sizin kullanıcı ID'niz
+TELEGRAM_TARGET_CHAT_ID=-1001234567890    # kanalın ID'si
+```
+
+Beyaz liste boşken kanala gönderim **kasıtlı olarak kapalıdır**: aksi halde
+botu bulan herkes kanalınıza gönderi attırabilirdi.
+
+**Kanal ID'si nasıl bulunur?** Kanal ID'leri `-100` ile başlar ve kullanıcı
+ID'lerinden farklıdır. Kanaldan bir mesajı [@userinfobot](https://t.me/userinfobot)
+adlı bota iletin, ID'yi size yazsın. Herkese açık kanallarda `@kanaladi`
+biçimi de kullanılabilir. **Bot kanalda yönetici olmalıdır**, aksi halde
+Telegram gönderimi reddeder ve bot size hatayı bildirir.
+
+Kendi kullanıcı ID'nizi öğrenmek için de aynı bota `/start` yazmanız yeterli.
+
 ## Canlı veri (isteğe bağlı)
 
 `AUTO_FETCH=1` iken bot eksik alanları canlı veriden tamamlamaya çalışır;
@@ -136,7 +163,8 @@ Tüm ayarlar ortam değişkeni ya da `.env` dosyası ile verilir:
 |---|---|---|
 | `TELEGRAM_BOT_TOKEN` | — | **Zorunlu.** BotFather token'ı |
 | `TELEGRAM_PARSE_MODE` | `html` | `html` \| `markdownv2` \| `plain` |
-| `TELEGRAM_ALLOWED_CHAT_IDS` | boş | Boşsa herkese açık; virgüllü ID listesi ile kısıtlanır |
+| `TELEGRAM_ALLOWED_CHAT_IDS` | boş | Boşsa herkese açık; virgüllü ID listesi ile kısıtlanır. Kanala gönderim için zorunlu |
+| `TELEGRAM_TARGET_CHAT_ID` | boş | Gönderilerin atılacağı kanal/grup ID'si (`-100...`) veya `@kanaladi` |
 | `AUTO_FETCH` | `1` | Canlı veri denemesi |
 | `FINNHUB_API_KEY` | boş | Finnhub anahtarı |
 | `REQUEST_TIMEOUT` | `10` | Canlı veri zaman aşımı (sn) |
@@ -173,7 +201,7 @@ smallcap-bot/
 │   ├── config.py           Ortam değişkeni yapılandırması
 │   ├── cli.py              Terminal arayüzü
 │   └── app.py              Telegram handler'ları
-└── tests/                  97 birim testi (yalnızca stdlib)
+└── tests/                  122 birim testi (yalnızca stdlib)
 ```
 
 ## Sürekli çalıştırma
